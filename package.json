@@ -1,0 +1,30 @@
+{
+  "name": "",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "copy-files": "copyfiles src/templates/*.hbs dist/",
+    "prestart": "npm run clean && npm run build && npm run copy-files",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/arm-resourcegraph": "^4.2.1",
+    "@azure/functions": "^4.0.0",
+    "@azure/identity": "^4.5.0",
+    "@azure/keyvault-secrets": "^4.9.0",
+    "handlebars": "^4.7.8",
+    "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "azure-functions-core-tools": "^4.x",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^5.0.0",
+    "typescript": "^4.0.0"
+  }
+}
