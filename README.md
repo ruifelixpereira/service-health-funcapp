@@ -70,9 +70,25 @@ npm start
 Send a request to the function
 
 ```bash
-# Test timer trigger
-curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  https://xpto.azurewebsites.net/admin/functions/getPlannedMaintenance
+# Test timer trigger locally
+curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/admin/functions/getHealthEvents
 
-
-curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/admin/functions/getPlannedMaintenance
+# Test timer trigger remotelly
+curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  https://xpto.azurewebsites.net/admin/functions/getHealthEvents
 ```
+
+## Deploy function app to Azure
+
+```bash
+npm run prestart
+npm run deploy
+#func azure functionapp publish infrastructure-serviceheath-prd-rg-ne",
+```
+
+## TODO
+
+- [ ] GitHub Action
+- [ ] Resend function
+- [ ] Prepare single report for all notifications - add link to detail in portal
+- [ ] Include Azure mail
+

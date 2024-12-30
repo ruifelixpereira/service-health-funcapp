@@ -12,24 +12,38 @@ export interface Resource {
 
 export interface ServiceHealthIssue {
     trackingId: string;
+    eventType: string;
+    eventSubType: string;
     description: string;
     summary: string;
     status: string;
     impactStartTime: string;
     impactMitigationTime: string;
-    lastUpdateTime: string;
+    max_lastUpdateTime: string;
     platformInitiated: string;
 }
 
 export interface ImpactedResource {
-    resource: string;
+    resourceId: string;
+    name: string;
+    type: string;
+    resourceGroup: string;
+    subscriptionId: string;
+    trackingId: string;
     status: string;
-    tags?: Array<string>;
+    tags?: string;
+}
+
+export interface ImpactedSubscription {
+    id: string;
+    name: string;
+    trackingId: string;
 }
 
 export interface ServiceHealthImpact {
     issue: ServiceHealthIssue;
     resources: Array<ImpactedResource>;
+    subscriptions: Array<ImpactedSubscription>;
 }
 
 export interface MailInterface {

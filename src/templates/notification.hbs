@@ -8,7 +8,7 @@
     <meta name=Generator content="Microsoft Word 15">
     <meta name=Originator content="Microsoft Word 15">
 
-    <title>Planned maintenance issue</title>
+    <title>Azure Service Health event</title>
 
     <style>
         <!--
@@ -714,7 +714,7 @@
                                                                                                 <h1
                                                                                                     style='margin-top:0in;margin-right:0in;margin-bottom:12.0pt; margin-left:0in;line-height:27.0pt;color:inherit;-webkit-hyphens: none; -moz-hyphens: none;-ms-hyphens: none;hyphens: none;-webkit-text-size-adjust: none'>
                                                                                                     <span
-                                                                                                        style='font-size:21.0pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F;letter-spacing:-.1pt'>{{{plannedMaintenanceSummary}}}
+                                                                                                        style='font-size:21.0pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F;letter-spacing:-.1pt'>{{{eventSummary}}}
                                                                                                         <o:p></o:p>
                                                                                                     </span>
                                                                                                 </h1>
@@ -795,15 +795,14 @@
                                                                                                             <p class=MsoNormal
                                                                                                                 style='line-height:15.0pt'>
                                                                                                                 <span
-                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Planned&nbsp;Maintenance
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{eventType}}
                                                                                                                     <o:p>
                                                                                                                     </o:p>
                                                                                                                 </span>
                                                                                                             </p>
                                                                                                         </td>
                                                                                                     </tr>
-                                                                                                    <tr
-                                                                                                        style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
                                                                                                         <td width="1%"
                                                                                                             nowrap
                                                                                                             valign=top
@@ -945,6 +944,7 @@
                                                                                         width="100%"
                                                                                         style='width:100.0%;border-collapse:collapse; mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in;-webkit-hyphens: auto; -moz-hyphens: auto;hyphens: auto'
                                                                                         role=presentation>
+                                                                                        {{#if impactedResources.length}}
                                                                                         <tr
                                                                                             style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow: yes'>
                                                                                             <td valign=top
@@ -973,7 +973,7 @@
                                                                                                                 style='line-height:15.0pt'>
                                                                                                                 <b>
                                                                                                                     <span
-                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Resource
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>ID
                                                                                                                         <o:p>
                                                                                                                         </o:p>
                                                                                                                     </span>
@@ -985,7 +985,147 @@
                                                                                                             <p class=MsoNormal
                                                                                                                 style='line-height:15.0pt'>
                                                                                                                 <span
-                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{resource}}
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{resourceId}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            nowrap
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; border-top:solid #DEDEDE 1.0pt;mso-border-top-alt:solid #DEDEDE .75pt; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Resource
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                        <td valign=top
+                                                                                                            style='border:none;border-top:solid #DEDEDE 1.0pt; mso-border-top-alt:solid #DEDEDE .75pt;padding:4.5pt 4.5pt 4.5pt 4.5pt; -webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto; word-break:break-word'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{name}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            nowrap
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; border-top:solid #DEDEDE 1.0pt;mso-border-top-alt:solid #DEDEDE .75pt; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Type
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                        <td valign=top
+                                                                                                            style='border:none;border-top:solid #DEDEDE 1.0pt; mso-border-top-alt:solid #DEDEDE .75pt;padding:4.5pt 4.5pt 4.5pt 4.5pt; -webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto; word-break:break-word'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{type}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            nowrap
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; border-top:solid #DEDEDE 1.0pt;mso-border-top-alt:solid #DEDEDE .75pt; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Resource&nbsp;group
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                        <td valign=top
+                                                                                                            style='border:none;border-top:solid #DEDEDE 1.0pt; mso-border-top-alt:solid #DEDEDE .75pt;padding:4.5pt 4.5pt 4.5pt 4.5pt; -webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto; word-break:break-word'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{resourceGroup}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            nowrap
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; border-top:solid #DEDEDE 1.0pt;mso-border-top-alt:solid #DEDEDE .75pt; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Subscription&nbsp;ID
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                         <td valign=top
+                                                                                                            style='border:none;border-top:solid #DEDEDE 1.0pt; mso-border-top-alt:solid #DEDEDE .75pt;padding:4.5pt 4.5pt 4.5pt 4.5pt; -webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto; word-break:break-word'>
+                                                                                                           <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{subscriptionId}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            nowrap
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; border-top:solid #DEDEDE 1.0pt;mso-border-top-alt:solid #DEDEDE .75pt; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Tags
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                        <td valign=top
+                                                                                                            style='border:none;border-top:solid #DEDEDE 1.0pt; mso-border-top-alt:solid #DEDEDE .75pt;padding:4.5pt 4.5pt 4.5pt 4.5pt; -webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto; word-break:break-word'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{tags}}
                                                                                                                     <o:p>
                                                                                                                     </o:p>
                                                                                                                 </span>
@@ -1026,6 +1166,63 @@
                                                                                                 style='width:.3pt;padding:0in 0in 0in 0in'>
                                                                                             </td>
                                                                                         </tr>
+                                                                                        {{/if}}
+                                                                                        {{#if impactedSubscriptions.length}}
+                                                                                        <tr
+                                                                                            style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow: yes'>
+                                                                                            <td valign=top
+                                                                                                style='padding:0in 0in 0in 0in'>
+                                                                                                <h3
+                                                                                                    style='margin-top:0in;margin-right:0in;margin-bottom:12.0pt; margin-left:0in;line-height:21.0pt;color:inherit;-webkit-text-size-adjust: none'>
+                                                                                                    <span
+                                                                                                        style='font-size:15.0pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>Impacted&nbsp;Subscriptions
+                                                                                                        <o:p></o:p>
+                                                                                                    </span>
+                                                                                                </h3>
+                                                                                                <table
+                                                                                                    class=MsoNormalTable
+                                                                                                    border=1
+                                                                                                    cellspacing=0
+                                                                                                    cellpadding=0
+                                                                                                    style='max-width:444.0pt;border-collapse:collapse;border:none; mso-border-bottom-alt:solid #EAEBEC .75pt;mso-yfti-tbllook:1184; mso-padding-alt:0in 0in 0in 0in;border-spacing: 0'
+                                                                                                    role=presentation>
+                                                                                                    {{#each impactedSubscriptions}}
+                                                                                                    <tr
+                                                                                                        style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+                                                                                                        <td width="1%"
+                                                                                                            valign=top
+                                                                                                            style='width:1.0%;border:none; padding:4.5pt 4.5pt 4.5pt 4.5pt'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <b>
+                                                                                                                    <span
+                                                                                                                        style='font-size:10.5pt;font-family:"Segoe UI Semibold",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{name}}
+                                                                                                                        <o:p>
+                                                                                                                        </o:p>
+                                                                                                                    </span>
+                                                                                                                </b>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                        <td valign=top
+                                                                                                            style='border:none;padding:4.5pt 4.5pt 4.5pt 4.5pt; overflow-wrap: break-word;-ms-word-break: break-all;-ms-hyphens: auto; -moz-hyphens: auto;-webkit-hyphens: auto;hyphens: auto; display:table-cell;word-break:break-word'>
+                                                                                                            <p class=MsoNormal
+                                                                                                                style='line-height:15.0pt'>
+                                                                                                                <span
+                                                                                                                    style='font-size:10.5pt;font-family:"Segoe UI",sans-serif; mso-fareast-font-family:"Times New Roman";color:#11100F'>{{id}}
+                                                                                                                    <o:p>
+                                                                                                                    </o:p>
+                                                                                                                </span>
+                                                                                                            </p>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                    {{/each}}
+                                                                                                </table>
+                                                                                            </td>
+                                                                                            <td width=0 valign=top
+                                                                                                style='width:.3pt;padding:0in 0in 0in 0in'>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        {{/if}}
                                                                                     </table>
                                                                                 </td>
                                                                             </tr>
@@ -1211,11 +1408,7 @@
                                                                                                         <strong><span
                                                                                                                 style='font-family:"Segoe UI Semibold",sans-serif;color:#11100F'>{{generationDate}}</span></strong><span
                                                                                                             style='font-family:"Segoe UI",sans-serif; color:#11100F'>
-                                                                                                            and includes
-                                                                                                            only the
-                                                                                                            planned
-                                                                                                            maintenance
-                                                                                                            issues.
+                                                                                                            and includes the planned maintenance and health advisory events.
                                                                                                             <o:p></o:p>
                                                                                                         </span>
                                                                                                 </p>

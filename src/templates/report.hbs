@@ -1,0 +1,76 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+    xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+    <meta http-equiv=Content-Type content="text/html; charset=unicode">
+
+    <title>Azure Service Health report</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+
+    <!--
+    <style>
+        body {
+            width: 8.5in;
+            height: 11in;
+            margin: 0
+        }
+        .page {
+            page-break-after: always;
+            position: relative;
+            width: 8.5in;
+            height: 11in;
+        }
+        table {
+            border-spacing: 5px;
+            margin-left: .35in;
+            font-family: "Segoe UI";
+            font-weight: normal;
+        }
+
+        td {
+            vertical-align: top;
+            text-align: left;
+        }
+
+        tr {
+            font-size: 14;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #e4e4e4;
+        }
+    </style>
+    -->
+</head>
+
+<body>
+    <div id="d2" style="margin: 3rem;">
+        <h1>Azure Service Health Report</h1>
+        <h3>Generated on {{generatedOn}} with {{itemCount}} events</h3>
+        <table class="pure-table pure-table-horizontal">
+            <thead>
+                <tr>
+                    <th >ID</th>
+                    <th >Event&nbsp;Type</th>
+                    <th >Summary</th>
+                    <th >End&nbsp;Time</th>
+                </tr>
+            </thead>
+            <tbody >
+                {{#each items}}
+                    <tr >
+                        <td><b>{{issue.trackingId}}</td>
+                        <td><b>{{issue.eventType}}</b></td>
+                        <td><b>{{{issue.summary}}}</td>
+                        <td><b>{{formatDate issue.impactMitigationTime}}</b></td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>   
+    </div>
+
+</body>
+
+</html>
