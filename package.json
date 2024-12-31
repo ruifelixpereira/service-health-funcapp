@@ -15,9 +15,11 @@
   },
   "dependencies": {
     "@azure/arm-resourcegraph": "^4.2.1",
+    "@azure/communication-email": "^1.0.0",
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.5.0",
     "@azure/keyvault-secrets": "^4.9.0",
+    "@azure/storage-queue": "^12.25.0",
     "date-fns": "^4.1.0",
     "handlebars": "^4.7.8",
     "nodemailer": "^6.9.16"

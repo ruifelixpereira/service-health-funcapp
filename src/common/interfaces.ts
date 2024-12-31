@@ -70,7 +70,7 @@ export interface HtmlNotification {
 };
 
 export interface EmailNotification {
-    app: string,
+    senderAddress: string,
     recipients: string[];
     subject: string;
     notification: HtmlNotification;

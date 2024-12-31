@@ -1,12 +1,12 @@
 import { app, InvocationContext, output } from "@azure/functions";
 
 import { DefaultLogger, SystemLogger } from '../common/logger';
-import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
-import { KeyVaultManager } from "../controllers/keyvault.manager";
-import { formatNotification } from "../controllers/notifications";
-import { sendMail } from "../controllers/email";
-import { EmailError, Email429Error, _getString } from "../common/apperror";
+import { EmailError, Email429Error } from "../common/apperror";
+import { EmailNotification } from "../common/interfaces";
 import { QueueManager } from "../controllers/queue.manager";
+import { KeyVaultManager } from "../controllers/keyvault.manager";
+import { sendMail } from "../controllers/email";
+
 
 const notificationBlobOutput = output.storageBlob({
     path: 'health-notifications-history/n-{DateTime}-{rand-guid}.html',
@@ -18,22 +18,12 @@ const failedEmailQueueOutput = output.storageQueue({
     connection: 'AzureWebJobsStorage'
 });
 
-
-export async function sendNotifications(queueItem: ServiceHealthImpact, context: InvocationContext): Promise<void> {
-    //context.log('Storage queue notifications function processed work item:', queueItem);
+export async function retryEmails(queueItem: EmailNotification, context: InvocationContext): Promise<void> {
+    //context.log('Storage queue retry-email function processed work item:', queueItem);
 
     SystemLogger.setLogger(new DefaultLogger(true));
 
-    let notification: HtmlNotification;
     try {
-        // Format notification
-        notification = formatNotification(queueItem);
-
-        //
-        // Send notification mail to Application owners
-        //
-        if (process.env.OUTPUT_SEND_MAIL === "true") {
-
             // Get keys from keyvault
             const kvManager = new KeyVaultManager();
 
@@ -42,20 +32,10 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
             //const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
             //const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
 
-            // TODO: get application owners e-mails from tags (recipients)
+            const email = await sendMail(emailEndpoint, queueItem);
 
-            // Send mail
-            const mailNotification: EmailNotification = {
-                senderAddress: process.env["EMAIL_SENDER_ADDRESS"] || "",
-                recipients: [""], //recipients,
-                subject: queueItem.issue.summary,
-                notification: notification
-            }
-            const email = await sendMail(emailEndpoint, mailNotification);
-        }
-
-        // Store notification in archive
-        context.extraOutputs.set(notificationBlobOutput, notification.bodyHtml);
+            // 3. Store notification in archive
+            context.extraOutputs.set(notificationBlobOutput, queueItem);
 
     } catch (err) {
 
@@ -63,8 +43,8 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
         if (err instanceof Email429Error) {
             // Look at the retry-after and define visibilityTimeout for the message
             const retryAfter = err.retryInfo.retryAfter;
-            const queueManager = new QueueManager(process.env.AzureWebJobsStorage || "", 'retry-email');
-            await queueManager.sendMessage(JSON.stringify(notification), retryAfter);
+            const queueManager = new QueueManager(process.env.StorageConnection || "", 'retry-email');
+            await queueManager.sendMessage(JSON.stringify(queueItem), retryAfter);
         }
         else if (err instanceof EmailError) {
             context.extraOutputs.set(failedEmailQueueOutput, err.message);
@@ -77,12 +57,12 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
     }
 }
 
-app.storageQueue('sendNotifications', {
-    queueName: 'notifications',
+app.storageQueue('retryEmails', {
+    queueName: 'retry-email',
     connection: 'AzureWebJobsStorage',
     extraOutputs: [
-        notificationBlobOutput,
+        notificationBlobOutput, 
         failedEmailQueueOutput
     ],
-    handler: sendNotifications
+    handler: retryEmails
 });
