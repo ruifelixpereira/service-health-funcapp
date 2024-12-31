@@ -22,11 +22,20 @@ export function formatReport(impactedResources: Array<ServiceHealthImpact>): Htm
         generatedOn: formattedDate
     }
 
-    // Helper to format tags
+    // Helpers
     Handlebars.registerHelper('formatDate', function (date: string) {
         const dateObj = parseISO(date);
         return format(dateObj, 'dd/MM/yyyy HH:mm');
     })
+
+    Handlebars.registerHelper('portalLink', function (title: string, eventType: string) {
+
+        const rawUrl = (eventType == "PlannedMaintenance") ? "https://portal.azure.com/#view/Microsoft_Azure_Health/AzureHealthBrowseBlade/~/plannedMaintenance" : "https://portal.azure.com/#view/Microsoft_Azure_Health/AzureHealthBrowseBlade/~/otherAnnouncements";
+        const url = Handlebars.escapeExpression(rawUrl);
+        const text = Handlebars.escapeExpression(title);
+            
+        return new Handlebars.SafeString("<a href='" + url + "'>" + text +"</a>");
+    });
 
     // Load the template
     const template = Handlebars.compile(fs.readFileSync(path.resolve(__dirname, "../templates/report.hbs"), "utf8"));

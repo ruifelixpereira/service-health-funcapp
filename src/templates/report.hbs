@@ -9,62 +9,86 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
 
-    <!--
-    <style>
-        body {
-            width: 8.5in;
-            height: 11in;
-            margin: 0
-        }
-        .page {
-            page-break-after: always;
-            position: relative;
-            width: 8.5in;
-            height: 11in;
-        }
-        table {
-            border-spacing: 5px;
-            margin-left: .35in;
-            font-family: "Segoe UI";
-            font-weight: normal;
-        }
-
-        td {
-            vertical-align: top;
-            text-align: left;
-        }
-
-        tr {
-            font-size: 14;
-        }
-
-        tr:nth-child(odd) {
-            background-color: #e4e4e4;
-        }
-    </style>
-    -->
 </head>
 
 <body>
     <div id="d2" style="margin: 3rem;">
-        <h1>Azure Service Health Report</h1>
-        <h3>Generated on {{generatedOn}} with {{itemCount}} events</h3>
-        <table class="pure-table pure-table-horizontal">
+
+        <div class="dbl-lined-header">
+            <h2>Azure Service Health Report</h2>
+            <small>Generated on {{generatedOn}} with {{itemCount}} events</small>
+            <p>&nbsp;</p>
+        </div>	
+
+        <table class="pure-table pure-table-horizontal" style="font-size: 14px;">
             <thead>
                 <tr>
-                    <th >ID</th>
-                    <th >Event&nbsp;Type</th>
-                    <th >Summary</th>
-                    <th >End&nbsp;Time</th>
+                    <th>ID</th>
+                    <th>Event&nbsp;Type</th>
+                    <th>Summary</th>
+                    <th>End&nbsp;Time</th>
                 </tr>
             </thead>
             <tbody >
                 {{#each items}}
                     <tr >
-                        <td><b>{{issue.trackingId}}</td>
-                        <td><b>{{issue.eventType}}</b></td>
-                        <td><b>{{{issue.summary}}}</td>
-                        <td><b>{{formatDate issue.impactMitigationTime}}</b></td>
+                        <td>{{issue.trackingId}}</td>
+                        <td>{{issue.eventType}}</td>
+                        <td>
+                            <p>&nbsp;</p>
+                            {{{issue.summary}}}
+
+                            {{#if resources.length}}
+                            <p>&nbsp;</p>
+                            <table class="pure-table pure-table-horizontal" style="font-size: 11px;">
+                                <thead>
+                                    <tr>
+                                        <th>Impacted&nbsp;resource</th>
+                                        <th>Type</th>
+                                        <th>Resource&nbsp;group</th>
+                                        <th>Subscription&nbsp;ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                    {{#each resources}}
+                                        <tr >
+                                            <td>{{name}}</td>
+                                            <td>{{type}}</td>
+                                            <td>{{resourceGroup}}</td>
+                                            <td>{{subscriptionId}}</td>
+                                        </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                            <p>&nbsp;</p>
+                            {{/if}}
+
+                            {{#if subscriptions.length}}
+                            <p>&nbsp;</p>
+                            <table class="pure-table pure-table-horizontal" style="font-size: 11px;">
+                                <thead>
+                                    <tr>
+                                        <th>Impacted&nbsp;subscription</th>
+                                        <th>ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                    {{#each subscriptions}}
+                                        <tr >
+                                            <td>{{name}}</td>
+                                            <td>{{id}}</td>
+                                        </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                            <p>&nbsp;</p>
+                            {{/if}}
+
+                            {{portalLink "View details in Azure Portal" issue.eventType}}
+                            <p>&nbsp;</p>
+
+                        </td>
+                        <td>{{formatDate issue.impactMitigationTime}}</td>
                     </tr>
                 {{/each}}
             </tbody>

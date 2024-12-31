@@ -89,6 +89,5 @@ npm run deploy
 
 - [ ] GitHub Action
 - [ ] Resend function
-- [ ] Prepare single report for all notifications - add link to detail in portal
 - [ ] Include Azure mail
 
