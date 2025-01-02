@@ -7,7 +7,11 @@ set -a && source .env && set +a
 
 # Required variables
 required_vars=(
+    "resourceGroupName"
+    "commServiceName"
+    "emailServiceName"
     "keyVaultName"
+    "emailTestOnlyRecipient"
 )
 
 # Set the current directory to where the script lives.
@@ -46,16 +50,14 @@ check_required_arguments
 ####################################################################################
 
 # Load keys and values
-SETTINGS_FILE="../local.settings.json"
 
-jq -c '.Values | to_entries | .[]' $SETTINGS_FILE | while read i; do
+# The endpoint of you Communications service.
+EMAIL_ENDPOINT=$(az communication show --name $commServiceName --resource-group $resourceGroupName --query "hostName" -o tsv)
+az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-endpoint --value ${EMAIL_ENDPOINT}
 
-    KEY=$(echo "$i" | jq -r '.key')
-    VALUE=$(echo "$i" | jq -r '.value')
+# The email address of the sender for all emails.
+FROM_SENDER_DOMAIN=$(az communication email domain show --resource-group $resourceGroupName --email-service-name $emailServiceName --name AzureManagedDomain --query "fromSenderDomain" -o tsv)
+az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-sender-address --value "donotreply@${FROM_SENDER_DOMAIN}"
 
-    if [[ "$KEY" != *"_"* ]]; then
-        echo "Loading key ${KEY}"
-        az keyvault secret set --vault-name $keyVaultName --name "${KEY}" --value "${VALUE}"
-    fi
-done
-
+# The email address for testing.
+az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-test-only-recipient --value ${emailTestOnlyRecipient}

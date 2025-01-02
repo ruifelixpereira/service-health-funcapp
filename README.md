@@ -94,12 +94,20 @@ func azure functionapp publish <the name of your function app Azure resource>
 
 You can use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml` that deploys the Function app in your environment.
 
-**Step 1.** Get the publish profile and configure Secrets in GitHub
+**Step 1.** Create a Service principal to deploy Function app and configure Secrets in GitHub
 
-1. In Azure portal, go to your function app.
-2. Click Get publish profile and download `.PublishSettings` file.
-3. Open the `.PublishSettings` file and copy the content.
-4. Paste the XML content to your GitHub Repository > Settings > Secrets > Add a new secret > `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` and paste the content.
+Run the provided script `scripts/prep-github-actions.sh` to create a Service Principal. The command should output a JSON object similar to this:
+
+```json
+  {
+    "clientId": "<GUID>",
+    "clientSecret": "<GUID>",
+    "subscriptionId": "<GUID>",
+    "tenantId": "<GUID>",
+    (...)
+  }
+```
+Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > Secrets > Add a new secret > `AZURE_RBAC_CREDENTIALS`.
 
 **Step 2.** In the GitHub Action workflow file you can change these variables for your configuration:
 
@@ -119,8 +127,16 @@ Function app system assigned identity needs to have the following roles in order
 | Storage Blob Data Owner        | Storage Account              |
 | Storage Queue Data Contributor | Storage Account              |
 | Key Vault Secrets User         | Key Vault                    |
-| Custom Role         | Communications Service       |
-| Key Vault Secrets User         | Email Communications Service |
+| Contributor or Custom Role     | Communications Service       |
+
+According to the [documentation](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email-smtp/smtp-authentication#using-a-microsoft-entra-application-with-access-to-the-azure-communication-services-resource-for-smtp) you need to assign the Function app identity the following permissions on the Azure Communication Service Resource to be able to send emails:
+- Microsoft.Communication/CommunicationServices/Read
+- Microsoft.Communication/CommunicationServices/Write
+- Microsoft.Communication/EmailServices/write
+
+You can create a custom role with these permissions and assign it to the Function app identity or you can just assign the Contributor role to the Function app identity. If you prefer to create a cuistpom role you can use the provided script `scripts/create-custom-role.sh`. Before runnning this script, edit the json file `scripts/custom-email-send-role.json` and change the subscription scope.
+
+```bash
 
 
 ## Function App environment settings
@@ -146,40 +162,17 @@ az functionapp config appsettings set --name <function-app-name> --resource-grou
 
 You need to add these secrets in your Key Vault:
 
-| Secret name                             | Value                                | Description |
-| --------------------------------------- | ------------------------------------ | ----------- |
-| servicehealth-email-endpoint            | https://xpto.communication.azure.com | The endpoiint of you Communications service. |
-| servicehealth-email-sender-address      | xxxx                                 | The email address of the sender for all emails. |
-| servicehealth-email-test-only-recipient | xxx                                  | The email address for testing. |
+| Secret name                             | Value                                                         | Description |
+| --------------------------------------- | ------------------------------------------------------------- | ----------- |
+| servicehealth-email-endpoint            | https://xpto.communication.azure.com                          | The endpoint of you Communications service. |
+| servicehealth-email-sender-address      | donotreply@11111111-0000-2222-3333-111111111111.azurecomm.net | The email address of the sender for all emails. |
+| servicehealth-email-test-only-recipient | xpto@contoso.com                                              | The email address for testing. |
+
+You need to have the `Key Vault Secrets Officer` role to add these secrets and you can use the provided script `scripts/add-keyvault-secrets.sh` to add these secrets to your Key Vault.
 
 
 ## TODO
 
-- [ ] GitHub Action
 - [ ] Test Azure mail
-- [ ] Change for Entra ID in Azure mail authentication
-- [ ] Review readme and add mail config and keyvault settings description
 - [ ] Add more details to the architecture diagram
-
-
-## Publish using GitHub Actions
-
-
-    Run Azure CLI command
-
-   az ad sp create-for-rbac --name "myApp" --role contributor \
-                            --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Web/sites/{app-name} \
-                            --sdk-auth
-
-  # Replace {subscription-id}, {resource-group}, and {app-name} with the names of your subscription, resource group, and Azure function app.
-  # The command should output a JSON object similar to this:
-
-  {
-    "clientId": "<GUID>",
-    "clientSecret": "<GUID>",
-    "subscriptionId": "<GUID>",
-    "tenantId": "<GUID>",
-    (...)
-  }
-
-Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > Secrets > Add a new secret > AZURE_RBAC_CREDENTIALS
+- [ ] Review readme

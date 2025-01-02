@@ -170,22 +170,27 @@ else
 fi
 
 #
+# Add default application settings to Function App
+#
+KEYVAULT_URI=$(az keyvault show --resource-group $resourceGroupName --name $keyVaultName --query properties.vaultUri -o tsv)
+az functionapp config appsettings set --name $funcAppName --resource-group $resourceGroupName --settings KEYVAULT_URI=$KEYVAULT_URI
+az functionapp config appsettings set --name $funcAppName --resource-group $resourceGroupName --settings OUTPUT_SEND_MAIL=true
+
+#
 # Add permissions to the Function App assigned identity
 #
-
 FUNCAPP_ID=$(az functionapp identity show --name $funcAppName --resource-group $resourceGroupName --query principalId -o tsv)
 
-# Assign Storage Blob and Queue roles to Function App assigned identity
+# Assign Storage Blob and Queue roles to Function App assigned identity on Storage Account
 STORAGE_ACCOUNT_ID=$(az storage account show --name $storageAccountName --resource-group $resourceGroupName --query id -o tsv)
 az role assignment create --assignee $FUNCAPP_ID --role "Storage Blob Data Owner" --scope $STORAGE_ACCOUNT_ID
 az role assignment create --assignee $FUNCAPP_ID --role "Storage Queue Data Contributor" --scope $STORAGE_ACCOUNT_ID
 
-# Assign Key Vault Secrets User role to Function App assigned identity
+# Assign Key Vault Secrets User role to Function App assigned identity on Key Vault
 KEYVAULT_ID=$(az keyvault show --name $keyVaultName --resource-group $resourceGroupName --query id -o tsv)
 #az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets Officer" --scope $KEYVAULT_ID
 az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets User" --scope $KEYVAULT_ID
 
-#
-# Get Comm service key and connection string
-#
-#az communication list-key --name $commServiceName --resource-group $resourceGroupName
+# Assign Contributor role to Function App assigned identity on Communication service
+COMMSERVICE_ID=$(az communication show --name $commServiceName --resource-group $resourceGroupName --query id -o tsv)
+az role assignment create --assignee $FUNCAPP_ID --role "Contributor" --scope $COMMSERVICE_ID

@@ -1,0 +1,16 @@
+{
+    "Name": "ACS Email Write",
+    "IsCustom": true,
+    "Description": "Send emails using the communications service.",
+    "Actions": [
+        "Microsoft.Communication/CommunicationServices/Read",
+        "Microsoft.Communication/CommunicationServices/Write",
+        "Microsoft.Communication/EmailServices/write"
+    ],
+    "NotActions": [],
+    "DataActions": [],
+    "NotDataActions": [],
+    "AssignableScopes": [
+      "/subscriptions/00000000-0000-0000-0000-000000000000"
+    ]
+  }
