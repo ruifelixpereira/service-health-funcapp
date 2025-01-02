@@ -160,3 +160,26 @@ You need to add these secrets in your Key Vault:
 - [ ] Change for Entra ID in Azure mail authentication
 - [ ] Review readme and add mail config and keyvault settings description
 - [ ] Add more details to the architecture diagram
+
+
+## Publish using GitHub Actions
+
+
+    Run Azure CLI command
+
+   az ad sp create-for-rbac --name "myApp" --role contributor \
+                            --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Web/sites/{app-name} \
+                            --sdk-auth
+
+  # Replace {subscription-id}, {resource-group}, and {app-name} with the names of your subscription, resource group, and Azure function app.
+  # The command should output a JSON object similar to this:
+
+  {
+    "clientId": "<GUID>",
+    "clientSecret": "<GUID>",
+    "subscriptionId": "<GUID>",
+    "tenantId": "<GUID>",
+    (...)
+  }
+
+Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > Secrets > Add a new secret > AZURE_RBAC_CREDENTIALS
