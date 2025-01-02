@@ -94,18 +94,20 @@ func azure functionapp publish <the name of your function app Azure resource>
 
 You can use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml` that deploys the Function app in your environment.
 
-Step 1. Get the publish profile and configure Secrets in GitHub
+**Step 1.** Get the publish profile and configure Secrets in GitHub
 
 1. In Azure portal, go to your function app.
-2. Click Get publish profile and download .PublishSettings file.
-3. Open the .PublishSettings file and copy the content.
-4. Paste the XML content to your GitHub Repository > Settings > Secrets > Add a new secret > AZURE_FUNCTIONAPP_PUBLISH_PROFILE
+2. Click Get publish profile and download `.PublishSettings` file.
+3. Open the `.PublishSettings` file and copy the content.
+4. Paste the XML content to your GitHub Repository > Settings > Secrets > Add a new secret > `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` and paste the content.
 
-Step 2. In the GitHub Action workflow file you can change these variables for your configuration:
+**Step 2.** In the GitHub Action workflow file you can change these variables for your configuration:
 
-- AZURE_FUNCTIONAPP_NAME: 'your-app-name'   # set this to your function app name on Azure
+| Variable               | Value         | Description                                  |
+| ---------------------- | ------------- | -------------------------------------------- |
+| AZURE_FUNCTIONAPP_NAME | your-app-name | Set this to your function app name on Azure. |
 
-Step 3. Commit and push your project to GitHub repository, you should see a new GitHub workflow initiated in Actions tab.
+**Step 3.** Commit and push your project to GitHub repository, you should see a new GitHub workflow initiated in Actions tab.
 
 
 ## Function App system assigned identity required roles
@@ -123,10 +125,32 @@ Function app system assigned identity needs to have the following roles in order
 
 ## Function App environment settings
 
+Adjust these settings in your Function app environment:
+
+| Key                 | Value                                         |
+| ------------------- | --------------------------------------------- |
+| AzureWebJobsStorage | Storage Account connection string used.       |
+| KEYVAULT_URI        | The URI of your Key Vault. You can get this URI from the Azure Portal. |
+| OUTPUT_SEND_MAIL    | true or false if you want to send out emails. |
+
+
+You can go directly to Azure Portal or you can use Azure CLI to set these settings:
+
+```bash
+# Example
+az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings OUTPUT_SEND_MAIL=true
+```
+
 
 ## Key Vault settings
 
+You need to add these secrets in your Key Vault:
 
+| Secret name                             | Value                                | Description |
+| --------------------------------------- | ------------------------------------ | ----------- |
+| servicehealth-email-endpoint            | https://xpto.communication.azure.com | The endpoiint of you Communications service. |
+| servicehealth-email-sender-address      | xxxx                                 | The email address of the sender for all emails. |
+| servicehealth-email-test-only-recipient | xxx                                  | The email address for testing. |
 
 
 ## TODO
@@ -135,3 +159,4 @@ Function app system assigned identity needs to have the following roles in order
 - [ ] Test Azure mail
 - [ ] Change for Entra ID in Azure mail authentication
 - [ ] Review readme and add mail config and keyvault settings description
+- [ ] Add more details to the architecture diagram

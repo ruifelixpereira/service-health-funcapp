@@ -25,6 +25,7 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
     SystemLogger.setLogger(new DefaultLogger(true));
 
     let notification: HtmlNotification;
+    let mailNotification: EmailNotification;
     try {
         // Format notification
         notification = formatNotification(queueItem);
@@ -36,22 +37,23 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
 
             // Get keys from keyvault
             const kvManager = new KeyVaultManager();
+            const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint"); // "https://<resource-name>.communication.azure.com";
+            const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
+            const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
 
-            //const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint");
-            const emailEndpoint = process.env["EMAIL_SERVICE_ENDPOINT"] || "https://<resource-name>.communication.azure.com";
-            //const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
-            //const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
-
-            // TODO: get application owners e-mails from tags (recipients)
+            // TODO: Prepare list of recipients: get application owners e-mails from tags
+            // For now let's just send to a test recipient
+            // const emailRecipients = await getAppOwnersEmails(healthEvents);
+            const emailRecipients = [emailTestOnlyRecipient];
 
             // Send mail
-            const mailNotification: EmailNotification = {
-                senderAddress: process.env["EMAIL_SENDER_ADDRESS"] || "",
-                recipients: [""], //recipients,
+            mailNotification = {
+                senderAddress: emailSenderAddress,
+                recipients: emailRecipients,
                 subject: queueItem.issue.summary,
                 notification: notification
             }
-            const email = await sendMail(emailEndpoint, mailNotification);
+            await sendMail(emailEndpoint, mailNotification);
         }
 
         // Store notification in archive
@@ -64,7 +66,7 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
             // Look at the retry-after and define visibilityTimeout for the message
             const retryAfter = err.retryInfo.retryAfter;
             const queueManager = new QueueManager(process.env.AzureWebJobsStorage || "", 'retry-email');
-            await queueManager.sendMessage(JSON.stringify(notification), retryAfter);
+            await queueManager.sendMessage(JSON.stringify(mailNotification), retryAfter);
         }
         else if (err instanceof EmailError) {
             context.extraOutputs.set(failedEmailQueueOutput, err.message);

@@ -26,12 +26,9 @@ export async function retryEmails(queueItem: EmailNotification, context: Invocat
     try {
             // Get keys from keyvault
             const kvManager = new KeyVaultManager();
+            const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint");
 
-            //const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint");
-            const emailEndpoint = process.env["EMAIL_SERVICE_ENDPOINT"] || "https://<resource-name>.communication.azure.com";
-            //const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
-            //const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
-
+            // Send mail
             const email = await sendMail(emailEndpoint, queueItem);
 
             // 3. Store notification in archive
@@ -43,7 +40,7 @@ export async function retryEmails(queueItem: EmailNotification, context: Invocat
         if (err instanceof Email429Error) {
             // Look at the retry-after and define visibilityTimeout for the message
             const retryAfter = err.retryInfo.retryAfter;
-            const queueManager = new QueueManager(process.env.StorageConnection || "", 'retry-email');
+            const queueManager = new QueueManager(process.env.AzureWebJobsStorage || "", 'retry-email');
             await queueManager.sendMessage(JSON.stringify(queueItem), retryAfter);
         }
         else if (err instanceof EmailError) {

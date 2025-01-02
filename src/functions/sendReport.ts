@@ -2,12 +2,20 @@ import { app, InvocationContext, output } from "@azure/functions";
 
 import { DefaultLogger, SystemLogger } from '../common/logger';
 import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
+import { EmailError, Email429Error } from "../common/apperror";
 import { KeyVaultManager } from "../controllers/keyvault.manager";
+import { QueueManager } from "../controllers/queue.manager";
+import { sendMail } from "../controllers/email";
 import { formatReport } from "../controllers/reports";
-import { MailService } from "../controllers/mailService";
+
 
 const reportBlobOutput = output.storageBlob({
     path: 'health-report-history/r-{DateTime}-{rand-guid}.html',
+    connection: 'AzureWebJobsStorage'
+});
+
+const failedEmailQueueOutput = output.storageQueue({
+    queueName: 'failed-email',
     connection: 'AzureWebJobsStorage'
 });
 
@@ -17,6 +25,7 @@ export async function sendReport(blob: Buffer, context: InvocationContext): Prom
     SystemLogger.setLogger(new DefaultLogger(true));
 
     let report: HtmlNotification;
+    let mailNotification: EmailNotification;
     try {
         // Parse blob to JSON
         const healthEvents: Array<ServiceHealthImpact> = JSON.parse(blob.toString('utf-8'));
@@ -31,37 +40,23 @@ export async function sendReport(blob: Buffer, context: InvocationContext): Prom
 
             // Get keys from keyvault
             const kvManager = new KeyVaultManager();
-
-            // TODO: get application owners e-mails from tags (recipients)
-
-            const mailNotification: EmailNotification = {
-                app: "", //resourceGroupTags.app,
-                recipients: [""], //recipients,
-                subject: "Azure Service Health report",
-                notification: report
-            }
-
-            // Send mail
-            const smtpHost = await kvManager.readSecret("servicehealth-smtp-relay-host");
-            const smtpPort = await kvManager.readSecret("servicehealth-smtp-relay-port");
-            const smtpUser = await kvManager.readSecret("servicehealth-smtp-relay-user");
-            const smtpPwd = await kvManager.readSecret("servicehealth-smtp-relay-pass");
+            const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint"); // "https://<resource-name>.communication.azure.com";
             const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
             const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
 
-            const mailService = new MailService({
-                host: smtpHost,
-                port: smtpPort,
-                user: smtpUser,
-                pwd: smtpPwd,
-                emailSenderAddress: emailSenderAddress
-            });
-            await mailService.sendMail(context.invocationId, {
-                to: mailNotification.recipients,
-                subject: mailNotification.subject,
-                html: mailNotification.notification.bodyHtml
-            },
-            emailTestOnlyRecipient);
+            // TODO: Prepare list of recipients: get application owners e-mails from tags
+            // For now let's just send to a test recipient
+            // const emailRecipients = await getAppOwnersEmails(healthEvents);
+            const emailRecipients = [emailTestOnlyRecipient];
+
+            // Send mail
+            mailNotification = {
+                senderAddress: emailSenderAddress,
+                recipients: emailRecipients,
+                subject: "Azure Service Health report",
+                notification: report
+            }
+            await sendMail(emailEndpoint, mailNotification);
         }
 
         // Store notification in archive
@@ -72,6 +67,15 @@ export async function sendReport(blob: Buffer, context: InvocationContext): Prom
         if (err instanceof SyntaxError && err.message === "Unexpected end of JSON input") {
             // Ignore because it's caused by the function to fire when the blob is created and stiil not yet completely uploaded.
             return;
+        }
+        else if (err instanceof Email429Error) {
+            // Look at the retry-after and define visibilityTimeout for the message
+            const retryAfter = err.retryInfo.retryAfter;
+            const queueManager = new QueueManager(process.env.AzureWebJobsStorage || "", 'retry-email');
+            await queueManager.sendMessage(JSON.stringify(mailNotification), retryAfter);
+        }
+        else if (err instanceof EmailError) {
+            context.extraOutputs.set(failedEmailQueueOutput, err.message);
         }
         else {
             context.error(err);
@@ -86,7 +90,8 @@ app.storageBlob('sendReport', {
     path: 'health-reports/{name}',
     connection: 'AzureWebJobsStorage',
     extraOutputs: [
-        reportBlobOutput
+        reportBlobOutput,
+        failedEmailQueueOutput
     ],
     handler: sendReport,
 });
