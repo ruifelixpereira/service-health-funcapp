@@ -3,7 +3,7 @@ import { EmailClient, EmailClientOptions } from "@azure/communication-email";
 import { EmailError, Email429Error, _getString } from "../common/apperror";
 import { EmailNotification } from "../common/interfaces";
 
-const connectionString = process.env["COMMUNICATION_SERVICES_CONNECTION_STRING"] || "";
+//const connectionString = process.env["COMMUNICATION_SERVICES_CONNECTION_STRING"] || "";
 
 
 
@@ -38,11 +38,10 @@ export async function sendHtmlMail(endpoint: string, senderAddress: string, to: 
             }
         ]
     }
-    const emailClient: EmailClient = new EmailClient(connectionString, clientOptions);
-    /*
-    let credential = new DefaultAzureCredential();
+    
+    //const emailClient: EmailClient = new EmailClient(connectionString, clientOptions);
+    const credential = new DefaultAzureCredential();
     const emailClient = new EmailClient(endpoint, credential);
-    */
 
     // Prepare recipients
     let listOfRecipients = [];
