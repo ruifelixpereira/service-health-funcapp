@@ -119,7 +119,7 @@ Function app system assigned identity needs to have the following roles in order
 | Storage Blob Data Owner        | Storage Account              |
 | Storage Queue Data Contributor | Storage Account              |
 | Key Vault Secrets User         | Key Vault                    |
-| Key Vault Secrets User         | Communications Service       |
+| Custom Role         | Communications Service       |
 | Key Vault Secrets User         | Email Communications Service |
 
 
