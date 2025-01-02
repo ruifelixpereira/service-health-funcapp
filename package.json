@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "service-health-function-app",
   "version": "1.0.0",
   "description": "",
   "main": "dist/src/functions/*.js",
@@ -10,7 +10,6 @@
     "copy-files": "copyfiles src/templates/*.hbs dist/",
     "prestart": "npm run clean && npm run build && npm run copy-files",
     "start": "func start",
-    "deploy": "func azure functionapp publish infrastructure-serviceheath-prd-rg-ne",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {

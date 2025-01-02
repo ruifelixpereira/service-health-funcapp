@@ -1,13 +1,13 @@
 #!/bin/bash
 
+# The user/sp running this script needs to have at least the role of "Key Vault Secrets Officer" in the Key Vault
+
 # load environment variables
 set -a && source .env && set +a
 
 # Required variables
 required_vars=(
-    "resourceGroupName"
-    "location"
-    "storageAccountName"
+    "keyVaultName"
 )
 
 # Set the current directory to where the script lives.
@@ -45,32 +45,17 @@ check_required_arguments
 
 ####################################################################################
 
-#
-# Create/Get a resource group.
-#
-rg_query=$(az group list --query "[?name=='$resourceGroupName']")
-if [ "$rg_query" == "[]" ]; then
-   echo -e "\nCreating Resource group '$resourceGroupName'"
-   az group create --name ${resourceGroupName} --location ${location}
-else
-   echo "Resource group $resourceGroupName already exists."
-   #RG_ID=$(az group show --name $resource_group --query id -o tsv)
-fi
+# Load keys and values
+SETTINGS_FILE="../local.settings.json"
 
-#
-# Create storage account
-#
-sa_query=$(az storage account list --query "[?name=='$storageAccountName']")
-if [ "$sa_query" == "[]" ]; then
-    echo -e "\nCreating Storage account '$storageAccountName'"
-    az storage account create \
-        --name $storageAccountName \
-        --resource-group ${resourceGroupName} \
-        --allow-blob-public-access false \
-        --allow-shared-key-access true \
-        --kind StorageV2 \
-        --sku Standard_LRS
-else
-    echo "Storage account $storageAccountName already exists."
-fi
+jq -c '.Values | to_entries | .[]' $SETTINGS_FILE | while read i; do
+
+    KEY=$(echo "$i" | jq -r '.key')
+    VALUE=$(echo "$i" | jq -r '.value')
+
+    if [[ "$KEY" != *"_"* ]]; then
+        echo "Loading key ${KEY}"
+        az keyvault secret set --vault-name $keyVaultName --name "${KEY}" --value "${VALUE}"
+    fi
+done
 

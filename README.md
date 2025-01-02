@@ -28,14 +28,18 @@ Configure your local environment and install Azure Function Core tools following
 
 ### Setup Azure resources
 
-Create an Azure Storage account to be used by the Azure Function. Copy `sample.env` to a new file named `.env` and customize the settings according to your environment.
-After this customization, just run the provided file:
+To create Azure resources you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
+After this customization, just run the provided file in the `scripts` directory:
 
 ```bash
 ./create-azure-env.sh
 ```
 
-### Create a local function project
+In the end you should have the following resources created:
+
+![alt text](docs/images/resources.png)
+
+### Create a local functions project
 
 ```bash
 func init --typescript
@@ -47,7 +51,7 @@ func new --name hello --template "HTTP trigger" --authlevel "anonymous"
 func new --name collectHealth --template "Timer trigger" --authlevel "anonymous"
 ```
 
-Add Azure Storage connection information in local.settings.json and ajust the settings of your Storage account:
+Add Azure Storage connection information in `local.settings.json` and adjust the settings of your Storage account:
 
 ```json
 {
@@ -79,15 +83,55 @@ curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxx
 
 ## Deploy function app to Azure
 
+
+### Deploy manually
 ```bash
 npm run prestart
-npm run deploy
-#func azure functionapp publish infrastructure-serviceheath-prd-rg-ne",
+func azure functionapp publish <the name of your function app Azure resource>
 ```
+
+### Deploy using GitHub Actions
+
+You can use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml` that deploys the Function app in your environment.
+
+Step 1. Get the publish profile and configure Secrets in GitHub
+
+1. In Azure portal, go to your function app.
+2. Click Get publish profile and download .PublishSettings file.
+3. Open the .PublishSettings file and copy the content.
+4. Paste the XML content to your GitHub Repository > Settings > Secrets > Add a new secret > AZURE_FUNCTIONAPP_PUBLISH_PROFILE
+
+Step 2. In the GitHub Action workflow file you can change these variables for your configuration:
+
+- AZURE_FUNCTIONAPP_NAME: 'your-app-name'   # set this to your function app name on Azure
+
+Step 3. Commit and push your project to GitHub repository, you should see a new GitHub workflow initiated in Actions tab.
+
+
+## Function App system assigned identity required roles
+
+Function app system assigned identity needs to have the following roles in order to be able to execute certain operations in other Azure resources. If you use the provided script `scripts\create-azure-env.sh` these roles are already assigned:
+
+| Role                           | Azure resource               |
+| ------------------------------ | ---------------------------- |
+| Storage Blob Data Owner        | Storage Account              |
+| Storage Queue Data Contributor | Storage Account              |
+| Key Vault Secrets User         | Key Vault                    |
+| Key Vault Secrets User         | Communications Service       |
+| Key Vault Secrets User         | Email Communications Service |
+
+
+## Function App environment settings
+
+
+## Key Vault settings
+
+
+
 
 ## TODO
 
 - [ ] GitHub Action
-- [ ] Resend function
-- [ ] Include Azure mail
-
+- [ ] Test Azure mail
+- [ ] Change for Entra ID in Azure mail authentication
+- [ ] Review readme and add mail config and keyvault settings description
