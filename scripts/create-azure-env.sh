@@ -172,9 +172,11 @@ fi
 #
 # Add default application settings to Function App
 #
-KEYVAULT_URI=$(az keyvault show --resource-group $resourceGroupName --name $keyVaultName --query properties.vaultUri -o tsv)
-az functionapp config appsettings set --name $funcAppName --resource-group $resourceGroupName --settings KEYVAULT_URI=$KEYVAULT_URI
-az functionapp config appsettings set --name $funcAppName --resource-group $resourceGroupName --settings OUTPUT_SEND_MAIL=true
+az functionapp config appsettings set --name $funcAppName --resource-group $resourceGroupName --settings \
+    EMAIL_SEND=true \
+    EMAIL_ENDPOINT="@Microsoft.KeyVault(VaultName=$keyVaultName;SecretName=servicehealth-email-endpoint)" \
+    EMAIL_SENDER_ADDRESS="@Microsoft.KeyVault(VaultName=$keyVaultName;SecretName=servicehealth-email-sender-address)" \
+    EMAIL_TEST_ONLY_RECIPIENT="@Microsoft.KeyVault(VaultName=$keyVaultName;SecretName=servicehealth-email-test-only-recipient)"
 
 #
 # Add permissions to the Function App assigned identity
@@ -188,8 +190,8 @@ az role assignment create --assignee $FUNCAPP_ID --role "Storage Queue Data Cont
 
 # Assign Key Vault Secrets User role to Function App assigned identity on Key Vault
 KEYVAULT_ID=$(az keyvault show --name $keyVaultName --resource-group $resourceGroupName --query id -o tsv)
-az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets Officer" --scope $KEYVAULT_ID
-#az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets User" --scope $KEYVAULT_ID
+#az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets Officer" --scope $KEYVAULT_ID
+az role assignment create --assignee $FUNCAPP_ID --role "Key Vault Secrets User" --scope $KEYVAULT_ID
 
 # Assign Contributor role to Function App assigned identity on Communication service
 COMMSERVICE_ID=$(az communication show --name $commServiceName --resource-group $resourceGroupName --query id -o tsv)
@@ -201,15 +203,3 @@ az role assignment create --assignee $FUNCAPP_ID --role "Contributor" --scope $C
 az storage queue create --name "notifications" --account-name $storageAccountName
 az storage queue create --name "retry-email" --account-name $storageAccountName
 az storage queue create --name "failed-email" --account-name $storageAccountName
-
-#
-# Create Key Vault
-#
-kv_query=$(az keyvault list --resource-group $resourceGroupName --query "[?name=='$keyVaultName2']")
-if [ "$kv_query" == "[]" ]; then
-    echo -e "\nCreating Key Vault '$keyVaultName2'"
-    az keyvault create --location $location --name $keyVaultName2 --resource-group $resourceGroupName
-else
-    echo "Key Vault '$keyVaultName2' already exists."
-fi
-

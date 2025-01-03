@@ -3,7 +3,7 @@ import { app, InvocationContext, output } from "@azure/functions";
 import { DefaultLogger, SystemLogger } from '../common/logger';
 import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
 import { formatNotification } from "../controllers/notifications";
-import { sendMail, getEmailConfigFromKeyVault } from "../controllers/email";
+import { sendMail, getEmailConfigFromEnvironment } from "../controllers/email";
 import { EmailError, Email429Error, _getString } from "../common/apperror";
 import { QueueManager } from "../controllers/queue.manager";
 
@@ -32,10 +32,10 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
         //
         // Send notification mail to Application owners
         //
-        if (process.env.OUTPUT_SEND_MAIL === "true") {
+        if (process.env.EMAIL_SEND === "true") {
 
             // Get email keys from keyvault
-            const emailConfig = await getEmailConfigFromKeyVault();
+            const emailConfig = await getEmailConfigFromEnvironment();
 
             // TODO: Prepare list of recipients: get application owners e-mails from tags
             // For now let's just send to a test recipient

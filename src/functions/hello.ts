@@ -3,7 +3,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 export async function hello(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const secret = process.env.TEST_SECRET;
+    const secret = process.env.EMAIL_ENDPOINT;
 
     return { body: `Hello, ${secret}!` };
 };

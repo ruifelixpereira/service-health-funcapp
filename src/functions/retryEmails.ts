@@ -4,8 +4,7 @@ import { DefaultLogger, SystemLogger } from '../common/logger';
 import { EmailError, Email429Error } from "../common/apperror";
 import { EmailNotification } from "../common/interfaces";
 import { QueueManager } from "../controllers/queue.manager";
-import { KeyVaultManager } from "../controllers/keyvault.manager";
-import { sendMail } from "../controllers/email";
+import { sendMail, getEmailConfigFromEnvironment } from "../controllers/email";
 
 
 const notificationBlobOutput = output.storageBlob({
@@ -24,12 +23,11 @@ export async function retryEmails(queueItem: EmailNotification, context: Invocat
     SystemLogger.setLogger(new DefaultLogger(true));
 
     try {
-            // Get keys from keyvault
-            const kvManager = new KeyVaultManager();
-            const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint");
+            // Get email keys from keyvault
+            const emailConfig = await getEmailConfigFromEnvironment();
 
             // Send mail
-            const email = await sendMail(emailEndpoint, queueItem);
+            const email = await sendMail(emailConfig.endpoint, queueItem);
 
             // 3. Store notification in archive
             context.extraOutputs.set(notificationBlobOutput, queueItem);
