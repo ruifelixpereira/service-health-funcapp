@@ -140,25 +140,6 @@ According to the [documentation](https://learn.microsoft.com/en-us/azure/communi
 You can create a custom role with these permissions and assign it to the Function app identity or you can just assign the Contributor role to the Function app identity. If you prefer to create a cuistpom role you can use the provided script `scripts/create-custom-role.sh`. Before runnning this script, edit the json file `scripts/custom-email-send-role.json` and change the subscription scope.
 
 
-## Function App environment settings
-
-Adjust these settings in your Function app environment:
-
-| Key                 | Value                                         |
-| ------------------- | --------------------------------------------- |
-| AzureWebJobsStorage | Storage Account connection string used.       |
-| KEYVAULT_URI        | The URI of your Key Vault. You can get this URI from the Azure Portal. |
-| OUTPUT_SEND_MAIL    | true or false if you want to send out emails. |
-
-
-You can go directly to Azure Portal or you can use Azure CLI to set these settings:
-
-```bash
-# Example
-az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings OUTPUT_SEND_MAIL=true
-```
-
-
 ## Key Vault settings
 
 You need to add these secrets in your Key Vault:
@@ -170,6 +151,28 @@ You need to add these secrets in your Key Vault:
 | servicehealth-email-test-only-recipient | xpto@contoso.com                                              | The email address for testing. |
 
 You need to have the `Key Vault Secrets Officer` role to add these secrets. You can use the provided script `scripts/add-keyvault-secrets.sh` to add these secrets to your Key Vault.
+
+
+## Function App environment settings
+
+Adjust these settings in your Function app environment:
+
+| Key                       | Value                                         | Description                                   |
+| ------------------------- | --------------------------------------------- | ------------------------------------------------------ |
+| AzureWebJobsStorage       | Storage Account connection string       | Used by the Function App to store data and use queues.       |
+| EMAIL_SEND                | `true` or `false`                     | Depending if you want to send email notifications or not.
+| EMAIL_ENDPOINT            | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-endpoint) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
+| EMAIL_SENDER_ADDRESS      | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-sender-address) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
+| EMAIL_TEST_ONLY_RECIPIENT | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-test-only-recipient) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
+
+You can go directly to Azure Portal or you can use Azure CLI to set these settings:
+
+```bash
+# Example
+az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings EMAIL_SEND=true
+```
+
+
 
 
 ## TODO

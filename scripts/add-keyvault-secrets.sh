@@ -53,7 +53,7 @@ check_required_arguments
 
 # The endpoint of you Communications service.
 EMAIL_ENDPOINT=$(az communication show --name $commServiceName --resource-group $resourceGroupName --query "hostName" -o tsv)
-az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-endpoint --value ${EMAIL_ENDPOINT}
+az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-endpoint --value "https://${EMAIL_ENDPOINT}"
 
 # The email address of the sender for all emails.
 FROM_SENDER_DOMAIN=$(az communication email domain show --resource-group $resourceGroupName --email-service-name $emailServiceName --name AzureManagedDomain --query "fromSenderDomain" -o tsv)
