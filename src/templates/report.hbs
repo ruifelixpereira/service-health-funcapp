@@ -7,18 +7,172 @@
 
     <title>Azure Service Health report</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <style>
+        html {
+            line-height: 1.15;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            margin: 0
+        }
+
+        main {
+            display: block
+        }
+
+        h1 {
+            font-size: 2em;
+            margin: .67em 0
+        }
+
+        hr {
+            box-sizing: content-box;
+            height: 0;
+            overflow: visible
+        }
+
+        pre {
+            font-family: monospace, monospace;
+            font-size: 1em
+        }
+
+        a {
+            background-color: transparent
+        }
+
+        b,
+        strong {
+            font-weight: bolder
+        }
+
+        small {
+            font-size: 80%
+        }
+
+        sub,
+        sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline
+        }
+
+        sub {
+            bottom: -.25em
+        }
+
+        sup {
+            top: -.5em
+        }
+
+        img {
+            border-style: none
+        }
+
+        details {
+            display: block
+        }
+
+        summary {
+            display: list-item
+        }
+
+        template {
+            display: none
+        }
+
+        [hidden] {
+            display: none
+        }
+
+        html {
+            font-family: sans-serif
+        }
+
+        .hidden,
+        [hidden] {
+            display: none !important
+        }
+
+        .pure-img {
+            max-width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .pure-table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            empty-cells: show;
+            border: 1px solid #cbcbcb
+        }
+
+        .pure-table caption {
+            color: #000;
+            font: italic 85%/1 arial, sans-serif;
+            padding: 1em 0;
+            text-align: center
+        }
+
+        .pure-table td,
+        .pure-table th {
+            border-left: 1px solid #cbcbcb;
+            border-width: 0 0 0 1px;
+            font-size: inherit;
+            margin: 0;
+            overflow: visible;
+            padding: .5em 1em
+        }
+
+        .pure-table thead {
+            background-color: #e0e0e0;
+            color: #000;
+            text-align: left;
+            vertical-align: bottom
+        }
+
+        .pure-table td {
+            background-color: transparent
+        }
+
+        .pure-table-odd td {
+            background-color: #f2f2f2
+        }
+
+        .pure-table-striped tr:nth-child(2n-1) td {
+            background-color: #f2f2f2
+        }
+
+        .pure-table-bordered td {
+            border-bottom: 1px solid #cbcbcb
+        }
+
+        .pure-table-bordered tbody>tr:last-child>td {
+            border-bottom-width: 0
+        }
+
+        .pure-table-horizontal td,
+        .pure-table-horizontal th {
+            border-width: 0 0 1px 0;
+            border-bottom: 1px solid #cbcbcb
+        }
+
+        .pure-table-horizontal tbody>tr:last-child>td {
+            border-bottom-width: 0
+        }
+    </style>
 
 </head>
 
 <body>
     <div id="d2" style="margin: 3rem;">
 
-        <div class="dbl-lined-header">
+        <div>
             <h2>Azure Service Health Report</h2>
             <small>Generated on {{generatedOn}} with {{itemCount}} events</small>
             <p>&nbsp;</p>
-        </div>	
+        </div>
 
         <table class="pure-table pure-table-bordered" style="font-size: 14px;">
             <thead>
@@ -29,70 +183,69 @@
                     <th>End&nbsp;Time</th>
                 </tr>
             </thead>
-            <tbody >
+            <tbody>
                 {{#each items}}
-                    <tr >
-                        <td style="vertical-align: top;">{{issue.trackingId}}</td>
-                        <td style="vertical-align: top;">{{issue.eventType}}</td>
-                        <td style="vertical-align: top;">
-                            <p>&nbsp;</p>
-                            {{{issue.summary}}}
+                <tr>
+                    <td style="vertical-align: top;">{{issue.trackingId}}</td>
+                    <td style="vertical-align: top;">{{issue.eventType}}</td>
+                    <td style="vertical-align: top;">
+                        {{{issue.summary}}}
 
-                            {{#if resources.length}}
-                            <p>&nbsp;</p>
-                            <table class="pure-table pure-table-bordered" style="font-size: 11px;">
-                                <thead>
-                                    <tr>
-                                        <th>Impacted&nbsp;resource</th>
-                                        <th>Type</th>
-                                        <th>Resource&nbsp;group</th>
-                                        <th>Subscription&nbsp;ID</th>
-                                    </tr>
-                                </thead>
-                                <tbody >
-                                    {{#each resources}}
-                                        <tr >
-                                            <td style="vertical-align: top;">{{name}}</td>
-                                            <td style="vertical-align: top;">{{type}}</td>
-                                            <td style="vertical-align: top;">{{resourceGroup}}</td>
-                                            <td style="vertical-align: top;">{{subscriptionId}}</td>
-                                        </tr>
-                                    {{/each}}
-                                </tbody>
-                            </table>
-                            <p>&nbsp;</p>
-                            {{/if}}
+                        {{#if resources.length}}
+                        <p>&nbsp;</p>
+                        <table class="pure-table pure-table-bordered" style="font-size: 11px;">
+                            <thead>
+                                <tr>
+                                    <th>Impacted&nbsp;resource</th>
+                                    <th>Type</th>
+                                    <th>Resource&nbsp;group</th>
+                                    <th>Subscription&nbsp;ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each resources}}
+                                <tr>
+                                    <td style="vertical-align: top;">{{name}}</td>
+                                    <td style="vertical-align: top;">{{type}}</td>
+                                    <td style="vertical-align: top;">{{resourceGroup}}</td>
+                                    <td style="vertical-align: top;">{{subscriptionId}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        <p>&nbsp;</p>
+                        {{/if}}
 
-                            {{#if subscriptions.length}}
-                            <p>&nbsp;</p>
-                            <table class="pure-table pure-table-bordered" style="font-size: 11px;">
-                                <thead>
-                                    <tr>
-                                        <th>Impacted&nbsp;subscription</th>
-                                        <th>ID</th>
-                                    </tr>
-                                </thead>
-                                <tbody >
-                                    {{#each subscriptions}}
-                                        <tr >
-                                            <td style="vertical-align: top;">{{name}}</td>
-                                            <td style="vertical-align: top;">{{id}}</td>
-                                        </tr>
-                                    {{/each}}
-                                </tbody>
-                            </table>
-                            <p>&nbsp;</p>
-                            {{/if}}
+                        {{#if subscriptions.length}}
+                        <p>&nbsp;</p>
+                        <table class="pure-table pure-table-bordered" style="font-size: 11px;">
+                            <thead>
+                                <tr>
+                                    <th>Impacted&nbsp;subscription</th>
+                                    <th>ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each subscriptions}}
+                                <tr>
+                                    <td style="vertical-align: top;">{{name}}</td>
+                                    <td style="vertical-align: top;">{{id}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        <p>&nbsp;</p>
+                        {{/if}}
 
-                            {{portalLink "View details in Azure Portal" issue.eventType}}
-                            <p>&nbsp;</p>
+                        {{portalLink "View details in Azure Portal" issue.eventType}}
+                        <p>&nbsp;</p>
 
-                        </td>
-                        <td style="vertical-align: top;">{{formatDate issue.impactMitigationTime}}</td>
-                    </tr>
+                    </td>
+                    <td style="vertical-align: top;">{{formatDate issue.impactMitigationTime}}</td>
+                </tr>
                 {{/each}}
             </tbody>
-        </table>   
+        </table>
     </div>
 
 </body>

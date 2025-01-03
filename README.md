@@ -22,11 +22,7 @@ The solution is based on Azure Functions and Azure Storage. The Azure Function i
 5. Since most of the notifications are related with future events, until the event happens, a repeated notification for the same event will be sent once a month (to ensure that it’s not forgotten). To support this, we have a scheduled Azure Function that reads the Active Notifications repository containing notifications that didn’t expire yet (residing on Storage Tables).
 
 
-## Setup
-
-Configure your local environment and install Azure Function Core tools following the instructions in the [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-typescript?tabs=linux%2Cazure-cli%2Cbrowser&pivots=nodejs-model-v4) documentation.
-
-### Setup Azure resources
+## Step 1. Setup Azure resources
 
 To create Azure resources you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
 After this customization, just run the provided file in the `scripts` directory:
@@ -39,65 +35,12 @@ In the end you should have the following resources created:
 
 ![alt text](docs/images/resources.png)
 
-### Create a local functions project
 
-```bash
-func init --typescript
+## Step 2. Deploy function app to Azure using GitHub Actions
 
-# Add a function to your project 
-func new --name hello --template "HTTP trigger" --authlevel "anonymous"
+Use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml` that deploys the Function app in your environment.
 
-# Add a function to your project 
-func new --name collectHealth --template "Timer trigger" --authlevel "anonymous"
-```
-
-Add Azure Storage connection information in `local.settings.json` and adjust the settings of your Storage account:
-
-```json
-{
-  "IsEncrypted": false,
-  "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "node",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=your_storage_account_name;AccountKey=your_storage_account_key;EndpointSuffix=core.windows.net"
-  }
-}
-```
-
-Run the function locally
-
-```bash
-npm start
-```
-
-![alt text](docs/images/run-local.png)
-
-Send a request to the function
-
-```bash
-# Test timer trigger locally
-curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/admin/functions/getHealthEvents
-
-# Test timer trigger remotelly
-curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  https://xpto.azurewebsites.net/admin/functions/getHealthEvents
-
-# Test othet http functions locally
-curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/api/hello
-```
-
-## Deploy function app to Azure
-
-
-### Deploy manually
-```bash
-npm run prestart
-func azure functionapp publish <the name of your function app Azure resource>
-```
-
-### Deploy using GitHub Actions
-
-You can use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml` that deploys the Function app in your environment.
-
-**Step 1.** Create a Service principal to deploy Function app and configure Secrets in GitHub
+### 2.1. Create a Service principal to deploy Function app and configure Secrets in GitHub
 
 Run the provided script `scripts/prep-github-actions.sh` to create a Service Principal. The command should output a JSON object similar to this:
 
@@ -112,16 +55,21 @@ Run the provided script `scripts/prep-github-actions.sh` to create a Service Pri
 ```
 Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > Secrets > Add a new secret > `AZURE_RBAC_CREDENTIALS`.
 
-**Step 2.** In the GitHub Action workflow file you can change these variables for your configuration:
+### 2.2. Customize GitHub Action
+
+In the GitHub Action workflow file you can change these variables for your configuration:
 
 | Variable               | Value         | Description                                  |
 | ---------------------- | ------------- | -------------------------------------------- |
 | AZURE_FUNCTIONAPP_NAME | your-app-name | Set this to your function app name on Azure. |
 
-**Step 3.** Commit and push your project to GitHub repository, you should see a new GitHub workflow initiated in Actions tab.
+
+### 2.3. Commit and push your project to GitHub repository
+
+You should see a new GitHub workflow initiated in Actions tab.
 
 
-## Function App system assigned identity required roles
+## Step 3. Assign roles and permissions to Function app
 
 Function app system assigned identity needs to have the following roles in order to be able to execute certain operations in other Azure resources. If you use the provided script `scripts\create-azure-env.sh` these roles are already assigned:
 
@@ -140,7 +88,7 @@ According to the [documentation](https://learn.microsoft.com/en-us/azure/communi
 You can create a custom role with these permissions and assign it to the Function app identity or you can just assign the Contributor role to the Function app identity. If you prefer to create a cuistpom role you can use the provided script `scripts/create-custom-role.sh`. Before runnning this script, edit the json file `scripts/custom-email-send-role.json` and change the subscription scope.
 
 
-## Key Vault settings
+## Step 4. Configure Key Vault settings
 
 You need to add these secrets in your Key Vault:
 
@@ -153,7 +101,7 @@ You need to add these secrets in your Key Vault:
 You need to have the `Key Vault Secrets Officer` role to add these secrets. You can use the provided script `scripts/add-keyvault-secrets.sh` to add these secrets to your Key Vault.
 
 
-## Function App environment settings
+## Step 5. Configure Function App environment settings
 
 Adjust these settings in your Function app environment:
 
@@ -172,7 +120,9 @@ You can go directly to Azure Portal or you can use Azure CLI to set these settin
 az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings EMAIL_SEND=true
 ```
 
+## Development
 
+You can check the guidelines for development in the [DEVELOPMENT](docs/development.md) file.
 
 
 ## TODO
