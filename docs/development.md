@@ -7,7 +7,7 @@ Configure your local environment and install Azure Function Core tools following
 
 ## Setup Azure resources
 
-To create Azure resources you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
+To create Azure resources, you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
 After this customization, just run the provided file in the `scripts` directory:
 
 ```bash
@@ -66,9 +66,9 @@ func azure functionapp publish <the name of your function app Azure resource>
 # Test timer trigger locally
 curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/admin/functions/getHealthEvents
 
-# Test timer trigger remotelly
+# Test timer trigger remotely
 curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  https://xpto.azurewebsites.net/admin/functions/getHealthEvents
 
-# Test othet http functions locally
+# Test http functions locally
 curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/api/hello
 ```
