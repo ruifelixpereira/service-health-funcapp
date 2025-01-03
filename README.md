@@ -85,6 +85,8 @@ Function app system assigned identity needs to have the following roles to be ab
 | Key Vault Secrets User         | Key Vault                    |
 | Contributor or Custom Role     | Communications Service       |
 
+To use Resource Graph, you must have appropriate rights in Azure role-based access control (Azure RBAC) with at least read access to the resources you want to query. No results are returned if you don't have at least read permissions to the Azure object or object group.
+
 According to the [documentation](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email-smtp/smtp-authentication#using-a-microsoft-entra-application-with-access-to-the-azure-communication-services-resource-for-smtp) you need to assign the Function app identity the following permissions on the Azure Communication Service Resource to be able to send emails:
 - Microsoft.Communication/CommunicationServices/Read
 - Microsoft.Communication/CommunicationServices/Write

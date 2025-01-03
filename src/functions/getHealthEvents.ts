@@ -22,71 +22,84 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
 
     context.log('Timer function getHealthEvents trigger request.');
 
-    // Azure SDK clients accept the credential as a parameter
-    const credential = new DefaultAzureCredential();
+    try {
+        context.log('Getting health events... 1');
+        // Azure SDK clients accept the credential as a parameter
+        const credential = new DefaultAzureCredential();
 
-    // Get health events
-    const healthEvents = await getActiveHealthAdvisoryEvents(credential);
+        context.log('Getting health events... 2');
+        // Get health events
+        const healthEvents = await getActiveHealthAdvisoryEvents(credential);
 
-    // Get tracking IDs for planned maintenance events
-    const pmTrackingIds = healthEvents.filter(event => event.eventType === 'PlannedMaintenance').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
+        context.log('Getting health events... 3');
+        // Get tracking IDs for planned maintenance events
+        const pmTrackingIds = healthEvents.filter(event => event.eventType === 'PlannedMaintenance').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
 
-    // Get impacted resources for planned maintenance events
-    const maintenanceImpactedResources = await getPlannedMaintenanceImpactedResources(credential, pmTrackingIds.substring(0, pmTrackingIds.length - 1));
+        context.log('Getting health events... 4');
+        // Get impacted resources for planned maintenance events
+        const maintenanceImpactedResources = await getPlannedMaintenanceImpactedResources(credential, pmTrackingIds.substring(0, pmTrackingIds.length - 1));
 
-    // Get tracking IDs for health advisory events
-    const heTrackingIds = healthEvents.filter(event => event.eventType === 'HealthAdvisory').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
+        // Get tracking IDs for health advisory events
+        const heTrackingIds = healthEvents.filter(event => event.eventType === 'HealthAdvisory').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
 
-    // Get impacted resources for health advisory events
-    const healthImpactedResources = await getHealthAdvisoryImpactedResources(credential, heTrackingIds.substring(0, heTrackingIds.length - 1));
+        // Get impacted resources for health advisory events
+        const healthImpactedResources = await getHealthAdvisoryImpactedResources(credential, heTrackingIds.substring(0, heTrackingIds.length - 1));
 
-    // Map impacted resources to health events
-    let impactedResources: ServiceHealthImpact[] = [];
-    healthEvents.forEach(event => {
+        context.log('Getting health events... 5');
+        // Map impacted resources to health events
+        let impactedResources: ServiceHealthImpact[] = [];
+        healthEvents.forEach(event => {
 
-        if (event.eventType === 'HealthAdvisory') {
-            const resources = healthImpactedResources.filter(resource => resource.trackingId === event.trackingId);
+            if (event.eventType === 'HealthAdvisory') {
+                const resources = healthImpactedResources.filter(resource => resource.trackingId === event.trackingId);
 
-            const impacted: ServiceHealthImpact = {
-                issue: event,
-                resources: resources,
-                subscriptions: []
-            };
+                const impacted: ServiceHealthImpact = {
+                    issue: event,
+                    resources: resources,
+                    subscriptions: []
+                };
 
-            impactedResources.push(impacted);
-        }
-        else if (event.eventType === 'PlannedMaintenance') {
-            const resources = maintenanceImpactedResources.filter(resource => resource.trackingId === event.trackingId);
+                impactedResources.push(impacted);
+            }
+            else if (event.eventType === 'PlannedMaintenance') {
+                const resources = maintenanceImpactedResources.filter(resource => resource.trackingId === event.trackingId);
 
-            const impacted: ServiceHealthImpact = {
-                issue: event,
-                resources: resources,
-                subscriptions: []
-            };
+                const impacted: ServiceHealthImpact = {
+                    issue: event,
+                    resources: resources,
+                    subscriptions: []
+                };
 
-            impactedResources.push(impacted);
-        }
-    });
+                impactedResources.push(impacted);
+            }
+        });
 
-    // Complement impacted subscriptions when there are no impacted resources
+        // Complement impacted subscriptions when there are no impacted resources
 
-    // Get tracking IDs for health events without resources
-    const nrTrackingIds = impactedResources.filter(event => event.resources.length == 0).reduce((acc, event) => acc + `"${event.issue.trackingId}",`, "");
+        // Get tracking IDs for health events without resources
+        const nrTrackingIds = impactedResources.filter(event => event.resources.length == 0).reduce((acc, event) => acc + `"${event.issue.trackingId}",`, "");
 
-    // Get impacted subscriptions for health events
-    const impactedSubscriptions = await getImpactedSubscriptions(credential, nrTrackingIds.substring(0, nrTrackingIds.length - 1));
+        // Get impacted subscriptions for health events
+        const impactedSubscriptions = await getImpactedSubscriptions(credential, nrTrackingIds.substring(0, nrTrackingIds.length - 1));
 
-    // Map impacted subscriptions to health events
-    impactedResources.forEach(event => {
-        const subscriptions = impactedSubscriptions.filter(subscription => subscription.trackingId === event.issue.trackingId);
-        event.subscriptions = subscriptions;
-    });
+        // Map impacted subscriptions to health events
+        impactedResources.forEach(event => {
+            const subscriptions = impactedSubscriptions.filter(subscription => subscription.trackingId === event.issue.trackingId);
+            event.subscriptions = subscriptions;
+        });
 
-    // Trigger notifications for impacted resources using Storage Queue
-    context.extraOutputs.set(notificationsQueueOutput, impactedResources);
+        // Trigger notifications for impacted resources using Storage Queue
+        context.extraOutputs.set(notificationsQueueOutput, impactedResources);
 
-    // Trigger consolidated report with all impacted resources using Storage Blob
-    context.extraOutputs.set(reportBlobOutput, impactedResources);
+        // Trigger consolidated report with all impacted resources using Storage Blob
+        context.extraOutputs.set(reportBlobOutput, impactedResources);
+
+    } catch (err) {
+        context.log('Getting health events... 99');
+        context.error(err);
+        // This rethrown exception will only fail the individual invocation, instead of crashing the whole process
+        throw err;
+    }
 }
 
 app.timer('getHealthEvents', {
