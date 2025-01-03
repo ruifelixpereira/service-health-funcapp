@@ -20,7 +20,7 @@
             <p>&nbsp;</p>
         </div>	
 
-        <table class="pure-table pure-table-horizontal" style="font-size: 14px;">
+        <table class="pure-table pure-table-bordered" style="font-size: 14px;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -32,15 +32,15 @@
             <tbody >
                 {{#each items}}
                     <tr >
-                        <td>{{issue.trackingId}}</td>
-                        <td>{{issue.eventType}}</td>
-                        <td>
+                        <td style="vertical-align: top;">{{issue.trackingId}}</td>
+                        <td style="vertical-align: top;">{{issue.eventType}}</td>
+                        <td style="vertical-align: top;">
                             <p>&nbsp;</p>
                             {{{issue.summary}}}
 
                             {{#if resources.length}}
                             <p>&nbsp;</p>
-                            <table class="pure-table pure-table-horizontal" style="font-size: 11px;">
+                            <table class="pure-table pure-table-bordered" style="font-size: 11px;">
                                 <thead>
                                     <tr>
                                         <th>Impacted&nbsp;resource</th>
@@ -52,10 +52,10 @@
                                 <tbody >
                                     {{#each resources}}
                                         <tr >
-                                            <td>{{name}}</td>
-                                            <td>{{type}}</td>
-                                            <td>{{resourceGroup}}</td>
-                                            <td>{{subscriptionId}}</td>
+                                            <td style="vertical-align: top;">{{name}}</td>
+                                            <td style="vertical-align: top;">{{type}}</td>
+                                            <td style="vertical-align: top;">{{resourceGroup}}</td>
+                                            <td style="vertical-align: top;">{{subscriptionId}}</td>
                                         </tr>
                                     {{/each}}
                                 </tbody>
@@ -65,7 +65,7 @@
 
                             {{#if subscriptions.length}}
                             <p>&nbsp;</p>
-                            <table class="pure-table pure-table-horizontal" style="font-size: 11px;">
+                            <table class="pure-table pure-table-bordered" style="font-size: 11px;">
                                 <thead>
                                     <tr>
                                         <th>Impacted&nbsp;subscription</th>
@@ -75,8 +75,8 @@
                                 <tbody >
                                     {{#each subscriptions}}
                                         <tr >
-                                            <td>{{name}}</td>
-                                            <td>{{id}}</td>
+                                            <td style="vertical-align: top;">{{name}}</td>
+                                            <td style="vertical-align: top;">{{id}}</td>
                                         </tr>
                                     {{/each}}
                                 </tbody>
@@ -88,7 +88,7 @@
                             <p>&nbsp;</p>
 
                         </td>
-                        <td>{{formatDate issue.impactMitigationTime}}</td>
+                        <td style="vertical-align: top;">{{formatDate issue.impactMitigationTime}}</td>
                     </tr>
                 {{/each}}
             </tbody>
