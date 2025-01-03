@@ -1,6 +1,6 @@
 // Storage queues
 import { QueueServiceClient } from "@azure/storage-queue"
-
+import { DefaultAzureCredential } from "@azure/identity";
 import { StorageQueueError, _getString } from "../common/apperror";
 
 
@@ -9,8 +9,10 @@ export class QueueManager {
     private queueServiceClient: QueueServiceClient;
     private queueName: string;
 
-    constructor(storageConnectionString: string, queue: string) {
-        this.queueServiceClient = QueueServiceClient.fromConnectionString(storageConnectionString);
+    constructor(connectionString: string, queue: string) {
+        const credential = new DefaultAzureCredential();
+        const account = getAccountNameFromConnString(connectionString);
+        this.queueServiceClient = new QueueServiceClient(`https://${account}.queue.core.windows.net`, credential);
         this.queueName = queue;
     }
 
@@ -41,4 +43,39 @@ export class QueueManager {
 
     }
 
+}
+
+
+/**
+ *
+ * @param connectionString - Account connection string.
+ * @param argument - property to get value from the connection string.
+ * @returns Value of the property specified in argument.
+ */
+export function getValueInConnString(
+    connectionString: string,
+    argument:
+        | "QueueEndpoint"
+        | "AccountName"
+        | "AccountKey"
+        | "DefaultEndpointsProtocol"
+        | "EndpointSuffix"
+        | "SharedAccessSignature",
+): string {
+    const elements = connectionString.split(";");
+    for (const element of elements) {
+        if (element.trim().startsWith(argument)) {
+            return element.trim().match(argument + "=(.*)")![1];
+        }
+    }
+    return "";
+}
+
+/**
+ *
+ * @param connectionString - Account connection string.
+ * @returns Value of the account name.
+ */
+export function getAccountNameFromConnString(connectionString: string): string {
+    return getValueInConnString(connectionString, "AccountName");
 }

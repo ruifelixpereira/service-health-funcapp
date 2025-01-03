@@ -79,6 +79,9 @@ curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxx
 
 # Test timer trigger remotelly
 curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  https://xpto.azurewebsites.net/admin/functions/getHealthEvents
+
+# Test othet http functions locally
+curl --request POST -H "Content-Type:application/json" -H "x-functions-key:xxxxxxxxxxxxx" --data '{"input":""}'  http://localhost:7071/api/hello
 ```
 
 ## Deploy function app to Azure
@@ -136,8 +139,6 @@ According to the [documentation](https://learn.microsoft.com/en-us/azure/communi
 
 You can create a custom role with these permissions and assign it to the Function app identity or you can just assign the Contributor role to the Function app identity. If you prefer to create a cuistpom role you can use the provided script `scripts/create-custom-role.sh`. Before runnning this script, edit the json file `scripts/custom-email-send-role.json` and change the subscription scope.
 
-```bash
-
 
 ## Function App environment settings
 
@@ -168,7 +169,7 @@ You need to add these secrets in your Key Vault:
 | servicehealth-email-sender-address      | donotreply@11111111-0000-2222-3333-111111111111.azurecomm.net | The email address of the sender for all emails. |
 | servicehealth-email-test-only-recipient | xpto@contoso.com                                              | The email address for testing. |
 
-You need to have the `Key Vault Secrets Officer` role to add these secrets and you can use the provided script `scripts/add-keyvault-secrets.sh` to add these secrets to your Key Vault.
+You need to have the `Key Vault Secrets Officer` role to add these secrets. You can use the provided script `scripts/add-keyvault-secrets.sh` to add these secrets to your Key Vault.
 
 
 ## TODO

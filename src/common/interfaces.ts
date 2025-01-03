@@ -75,3 +75,9 @@ export interface EmailNotification {
     subject: string;
     notification: HtmlNotification;
 };
+
+export interface EmailConfiguration {
+    endpoint: string,
+    senderAddress: string;
+    testOnlyRecipient: string;
+};

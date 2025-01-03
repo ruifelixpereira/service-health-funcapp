@@ -1,10 +1,8 @@
 import { DefaultAzureCredential } from "@azure/identity";
 import { EmailClient, EmailClientOptions } from "@azure/communication-email";
 import { EmailError, Email429Error, _getString } from "../common/apperror";
-import { EmailNotification } from "../common/interfaces";
-
-//const connectionString = process.env["COMMUNICATION_SERVICES_CONNECTION_STRING"] || "";
-
+import { EmailNotification, EmailConfiguration } from "../common/interfaces";
+import { KeyVaultManager } from "./keyvault.manager";
 
 
 const catch429Policy = {
@@ -84,4 +82,30 @@ export async function sendHtmlMail(endpoint: string, senderAddress: string, to: 
             throw new EmailError(message);
         }
     }
+}
+
+export async function getEmailConfigFromKeyVault2(): Promise<EmailConfiguration> {
+
+    // Get keys from keyvault
+    const kvManager = new KeyVaultManager();
+    let emailConfig: EmailConfiguration = {
+        endpoint: await kvManager.readSecret("servicehealth-email-endpoint"),
+        senderAddress: await kvManager.readSecret("servicehealth-email-sender-address"),
+        testOnlyRecipient: await kvManager.readSecret("servicehealth-email-test-only-recipient")
+    };
+
+    return emailConfig;
+}
+
+export async function getEmailConfigFromKeyVault(): Promise<EmailConfiguration> {
+
+    // Get keys from keyvault
+    const kvManager = new KeyVaultManager();
+    let emailConfig: EmailConfiguration = {
+        endpoint: "https://comm-servicehealth001.europe.communication.azure.com",
+        senderAddress: "donotreply@140aa7ee-78b4-4983-bb5d-3ec576ea53a4.azurecomm.net",
+        testOnlyRecipient: "ruipe@microsoft.com"
+    };
+
+    return emailConfig;
 }

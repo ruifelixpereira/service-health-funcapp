@@ -3,9 +3,9 @@ import { app, InvocationContext, output } from "@azure/functions";
 import { DefaultLogger, SystemLogger } from '../common/logger';
 import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
 import { EmailError, Email429Error } from "../common/apperror";
-import { KeyVaultManager } from "../controllers/keyvault.manager";
+
 import { QueueManager } from "../controllers/queue.manager";
-import { sendMail } from "../controllers/email";
+import { sendMail, getEmailConfigFromKeyVault } from "../controllers/email";
 import { formatReport } from "../controllers/reports";
 
 
@@ -38,25 +38,22 @@ export async function sendReport(blob: Buffer, context: InvocationContext): Prom
         //
         if (process.env.OUTPUT_SEND_MAIL === "true") {
 
-            // Get keys from keyvault
-            const kvManager = new KeyVaultManager();
-            const emailEndpoint = await kvManager.readSecret("servicehealth-email-endpoint"); // "https://<resource-name>.communication.azure.com";
-            const emailSenderAddress = await kvManager.readSecret("servicehealth-email-sender-address");
-            const emailTestOnlyRecipient = await kvManager.readSecret("servicehealth-email-test-only-recipient");
+            // Get email keys from keyvault
+            const emailConfig = await getEmailConfigFromKeyVault();
 
             // TODO: Prepare list of recipients: get application owners e-mails from tags
             // For now let's just send to a test recipient
             // const emailRecipients = await getAppOwnersEmails(healthEvents);
-            const emailRecipients = [emailTestOnlyRecipient];
+            const emailRecipients = [emailConfig.testOnlyRecipient];
 
             // Send mail
             mailNotification = {
-                senderAddress: emailSenderAddress,
+                senderAddress: emailConfig.senderAddress,
                 recipients: emailRecipients,
                 subject: "Azure Service Health report",
                 notification: report
             }
-            await sendMail(emailEndpoint, mailNotification);
+            await sendMail(emailConfig.endpoint, mailNotification);
         }
 
         // Store notification in archive
