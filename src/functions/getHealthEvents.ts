@@ -32,7 +32,6 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
         // Get tracking IDs for planned maintenance events
         const pmTrackingIds = healthEvents.filter(event => event.eventType === 'PlannedMaintenance').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
 
-        context.log('Getting health events... 4');
         // Get impacted resources for planned maintenance events
         let maintenanceImpactedResources = []
         if (pmTrackingIds.length > 0) {
@@ -42,14 +41,12 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
         // Get tracking IDs for health advisory events
         const heTrackingIds = healthEvents.filter(event => event.eventType === 'HealthAdvisory').reduce((acc, event) => acc + `"${event.trackingId}",`, "");
 
-        context.log('Getting health events... 5');
         // Get impacted resources for health advisory events
         let healthImpactedResources = [];
         if (heTrackingIds.length > 0) {
             healthImpactedResources = await getHealthAdvisoryImpactedResources(credential, heTrackingIds.substring(0, heTrackingIds.length - 1));
         }
 
-        context.log('Getting health events... 6');
         // Map impacted resources to health events
         let impactedResources: ServiceHealthImpact[] = [];
         healthEvents.forEach(event => {
@@ -80,7 +77,6 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
 
         // Complement impacted subscriptions when there are no impacted resources
 
-        context.log('Getting health events... 7');
         // Get tracking IDs for health events without resources
         const nrTrackingIds = impactedResources.filter(event => event.resources.length == 0).reduce((acc, event) => acc + `"${event.issue.trackingId}",`, "");
 
@@ -90,14 +86,11 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
             impactedSubscriptions = await getImpactedSubscriptions(credential, nrTrackingIds.substring(0, nrTrackingIds.length - 1));
         }
 
-        context.log('Getting health events... 8');
         // Map impacted subscriptions to health events
         impactedResources.forEach(event => {
             const subscriptions = impactedSubscriptions.filter(subscription => subscription.trackingId === event.issue.trackingId);
             event.subscriptions = subscriptions;
         });
-
-        context.log('Getting health events... 9');
 
         // Trigger notifications for impacted resources using Storage Queue
         context.extraOutputs.set(notificationsQueueOutput, impactedResources);
@@ -106,7 +99,6 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
         context.extraOutputs.set(reportBlobOutput, impactedResources);
 
     } catch (err) {
-        context.log('Getting health events... 99');
         context.error(err);
         // This rethrown exception will only fail the individual invocation, instead of crashing the whole process
         throw err;
