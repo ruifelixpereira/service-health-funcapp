@@ -116,7 +116,7 @@ Adjust these settings in your Function app environment:
 | Key                       | Value                                         | Description                                   |
 | ------------------------- | --------------------------------------------- | ------------------------------------------------------ |
 | AzureWebJobsStorage       | Storage Account connection string       | Used by the Function App to store data and use queues.       |
-| EMAIL_SEND                | `true` or `false`                     | Depending if you want to send email notifications or not.
+| NOTIFICATION_SENDERS      | email,itsm,devops,other | A comma-separated list of the types of notification senders to use. It must be a combination of these values: `email`\|`itsm`\|`devops`\|`other` (spaces are not allowed).
 | EMAIL_ENDPOINT            | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-endpoint) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
 | EMAIL_SENDER_ADDRESS      | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-sender-address) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
 | EMAIL_TEST_ONLY_RECIPIENT | @Microsoft.KeyVault(VaultName=your_key_vault_name;SecretName=servicehealth-email-test-only-recipient) | Points to the corresponding Key vault secret. Replace `your_key_vault_name` with your own. |
@@ -125,9 +125,13 @@ You can go directly to Azure Portal, or you can use Azure CLI to set these setti
 
 ```bash
 # Example
-az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings EMAIL_SEND=true
+az functionapp config appsettings set --name <function-app-name> --resource-group <resource-group-name> --settings NOTIFICATION_SENDERS="email,itsm,devops,other"
 ```
 
 ## Development
 
 You can check the guidelines for development in the [DEVELOPMENT](docs/development.md) file.
+
+## Customizations
+
+You can customize the behavior of the Service Health Enhanced Notifications by following the guidelines in the [CUSTOMIZATIONS](docs/customizations.md) file.
