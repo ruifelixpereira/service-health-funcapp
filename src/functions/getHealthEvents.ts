@@ -92,11 +92,13 @@ export async function getHealthEvents(myTimer: Timer, context: InvocationContext
             event.subscriptions = subscriptions;
         });
 
-        // Trigger notifications for impacted resources using Storage Queue
-        context.extraOutputs.set(notificationsQueueOutput, impactedResources);
+        if (impactedResources.length > 0) {
+            // Trigger notifications for impacted resources using Storage Queue
+            context.extraOutputs.set(notificationsQueueOutput, impactedResources);
 
-        // Trigger consolidated report with all impacted resources using Storage Blob
-        context.extraOutputs.set(reportBlobOutput, impactedResources);
+            // Trigger consolidated report with all impacted resources using Storage Blob
+            context.extraOutputs.set(reportBlobOutput, impactedResources);
+        }
 
     } catch (err) {
         context.error(err);

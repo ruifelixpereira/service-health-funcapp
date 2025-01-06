@@ -19,12 +19,12 @@ const catch429Policy = {
     }
 };
 
-export async function sendMail(endpoint: string, notification: EmailNotification): Promise<String> {
+export async function sendMail(endpoint: string, notification: EmailNotification): Promise<string> {
 
     return sendHtmlMail(endpoint, notification.senderAddress, notification.recipients, notification.subject, notification.notification.bodyHtml);
 }
 
-export async function sendHtmlMail(endpoint: string, senderAddress: string, to: string[], subject: string, body: string): Promise<String> {
+export async function sendHtmlMail(endpoint: string, senderAddress: string, to: string[], subject: string, body: string): Promise<string> {
 
     // Create the Email Client
     const clientOptions: EmailClientOptions = {

@@ -4,13 +4,9 @@ import { DefaultLogger, SystemLogger } from '../common/logger';
 import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
 import { formatNotification } from "../controllers/notifications";
 import { sendMail, getEmailConfigFromEnvironment } from "../controllers/email";
+import { getNotificationEmailRecipients } from "../controllers/customEmailRecipients";
 import { EmailError, Email429Error, _getString } from "../common/apperror";
 import { QueueManager } from "../controllers/queue.manager";
-
-const notificationBlobOutput = output.storageBlob({
-    path: 'health-notifications-history/n-{DateTime}-{rand-guid}.html',
-    connection: 'AzureWebJobsStorage'
-});
 
 const failedEmailQueueOutput = output.storageQueue({
     queueName: 'failed-email',
@@ -18,7 +14,7 @@ const failedEmailQueueOutput = output.storageQueue({
 });
 
 
-export async function sendNotifications(queueItem: ServiceHealthImpact, context: InvocationContext): Promise<void> {
+export async function sendNotificationsEmail(queueItem: ServiceHealthImpact, context: InvocationContext): Promise<void> {
     //context.log('Storage queue notifications function processed work item:', queueItem);
 
     SystemLogger.setLogger(new DefaultLogger(true));
@@ -32,16 +28,14 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
         //
         // Send notification mail to Application owners
         //
-        if (process.env.EMAIL_SEND === "true") {
 
-            // Get email keys from keyvault
-            const emailConfig = await getEmailConfigFromEnvironment();
+        // Get email keys from keyvault
+        const emailConfig = await getEmailConfigFromEnvironment();
 
-            // TODO: Prepare list of recipients: get application owners e-mails from tags
-            // For now let's just send to a test recipient
-            // const emailRecipients = await getAppOwnersEmails(healthEvents);
-            const emailRecipients = [emailConfig.testOnlyRecipient];
+        //  Prepare list of recipients (e.g., get application owners e-mails from tags)
+        const emailRecipients = await getNotificationEmailRecipients(queueItem , [emailConfig.testOnlyRecipient]);
 
+        if (emailRecipients.length > 0) {
             // Send mail
             mailNotification = {
                 senderAddress: emailConfig.senderAddress,
@@ -51,9 +45,6 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
             }
             await sendMail(emailConfig.endpoint, mailNotification);
         }
-
-        // Store notification in archive
-        context.extraOutputs.set(notificationBlobOutput, notification.bodyHtml);
 
     } catch (err) {
 
@@ -75,12 +66,11 @@ export async function sendNotifications(queueItem: ServiceHealthImpact, context:
     }
 }
 
-app.storageQueue('sendNotifications', {
-    queueName: 'notifications',
+app.storageQueue('sendNotificationsEmail', {
+    queueName: 'notifications-email',
     connection: 'AzureWebJobsStorage',
     extraOutputs: [
-        notificationBlobOutput,
         failedEmailQueueOutput
     ],
-    handler: sendNotifications
+    handler: sendNotificationsEmail
 });
