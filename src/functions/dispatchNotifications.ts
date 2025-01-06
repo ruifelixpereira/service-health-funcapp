@@ -44,19 +44,20 @@ export async function dispatchNotifications(queueItem: ServiceHealthImpact, cont
         //
         // Dispatch notifications to corresponding sender type queues
         //
-        if (process.env.NOTIFICATION_SENDERS.indexOf("email") > -1) {
+        const senders = process.env.NOTIFICATION_SENDERS.split(',');
+        if (senders.indexOf("email") > -1) {
             context.extraOutputs.set(emailQueueOutput, queueItem);
         }
 
-        if (process.env.NOTIFICATION_SENDERS.indexOf("itsm") > -1) {
+        if (senders.indexOf("itsm") > -1) {
             context.extraOutputs.set(itsmQueueOutput, queueItem);
         }
 
-        if (process.env.NOTIFICATION_SENDERS.indexOf("devops") > -1) {
+        if (senders.indexOf("devops") > -1) {
             context.extraOutputs.set(devopsQueueOutput, queueItem);
         }
 
-        if (process.env.NOTIFICATION_SENDERS.indexOf("other") > -1) {
+        if (senders.indexOf("other") > -1) {
             context.extraOutputs.set(otherQueueOutput, queueItem);
         }
 
