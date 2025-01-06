@@ -6,6 +6,7 @@ import { EmailError, Email429Error } from "../common/apperror";
 
 import { QueueManager } from "../controllers/queue.manager";
 import { sendMail, getEmailConfigFromEnvironment } from "../controllers/email";
+import { getNotificationEmailOperRecipients } from "../controllers/customEmailRecipients";
 import { formatReport } from "../controllers/reports";
 
 
@@ -36,24 +37,25 @@ export async function sendReport(blob: Buffer, context: InvocationContext): Prom
         //
         // Send notification mail to Application owners
         //
-        if (process.env.EMAIL_SEND === "true") {
+        const senders = process.env.NOTIFICATION_SENDERS.split(',');
+        if (senders.indexOf("email") > -1) {
 
             // Get email keys from keyvault
             const emailConfig = await getEmailConfigFromEnvironment();
 
-            // TODO: Prepare list of recipients: get application owners e-mails from tags
-            // For now let's just send to a test recipient
-            // const emailRecipients = await getAppOwnersEmails(healthEvents);
-            const emailRecipients = [emailConfig.testOnlyRecipient];
+            //  Prepare list of recipients for operations
+            const emailRecipients = await getNotificationEmailOperRecipients([emailConfig.testOnlyRecipient]);
 
-            // Send mail
-            mailNotification = {
-                senderAddress: emailConfig.senderAddress,
-                recipients: emailRecipients,
-                subject: "Azure Service Health report",
-                notification: report
+            if (emailRecipients.length > 0) {
+                // Send mail
+                mailNotification = {
+                    senderAddress: emailConfig.senderAddress,
+                    recipients: emailRecipients,
+                    subject: "Azure Service Health report",
+                    notification: report
+                }
+                await sendMail(emailConfig.endpoint, mailNotification);
             }
-            await sendMail(emailConfig.endpoint, mailNotification);
         }
 
         // Store notification in archive

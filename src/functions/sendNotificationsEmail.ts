@@ -4,7 +4,7 @@ import { DefaultLogger, SystemLogger } from '../common/logger';
 import { ServiceHealthImpact, HtmlNotification, EmailNotification } from "../common/interfaces";
 import { formatNotification } from "../controllers/notifications";
 import { sendMail, getEmailConfigFromEnvironment } from "../controllers/email";
-import { getNotificationEmailRecipients } from "../controllers/customEmailRecipients";
+import { getNotificationEmailAppRecipients } from "../controllers/customEmailRecipients";
 import { EmailError, Email429Error, _getString } from "../common/apperror";
 import { QueueManager } from "../controllers/queue.manager";
 
@@ -33,7 +33,7 @@ export async function sendNotificationsEmail(queueItem: ServiceHealthImpact, con
         const emailConfig = await getEmailConfigFromEnvironment();
 
         //  Prepare list of recipients (e.g., get application owners e-mails from tags)
-        const emailRecipients = await getNotificationEmailRecipients(queueItem , [emailConfig.testOnlyRecipient]);
+        const emailRecipients = await getNotificationEmailAppRecipients(queueItem , [emailConfig.testOnlyRecipient]);
 
         if (emailRecipients.length > 0) {
             // Send mail
