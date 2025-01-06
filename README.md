@@ -78,15 +78,16 @@ You should see a new GitHub workflow initiated in Actions tab.
 
 Function app system assigned identity needs to have the following roles to be able to execute certain operations in other Azure resources. If you use the provided script `scripts\create-azure-env.sh` these roles are already assigned:
 
-| Role                           | Azure resource               |
-| ------------------------------ | ---------------------------- |
-| Storage Blob Data Owner        | Storage Account              |
-| Storage Queue Data Contributor | Storage Account              |
-| Key Vault Secrets User         | Key Vault                    |
-| Contributor or Custom Role     | Communications Service       |
+| Role                           | Azure resource               | Notes |
+| ------------------------------ | ---------------------------- | ----- |
+| Storage Blob Data Owner        | Storage Account              | For blobs |
+| Storage Queue Data Contributor | Storage Account              | For queues |
+| Key Vault Secrets User         | Key Vault                    | To get secrets |
+| Contributor or Custom Role     | Communications Service       | To send emails. Check **Notes** below. |
+| Reader                         | All Azure resources, Subscription level or Management Group level | Access to all the resources for which we want to be notified about any service health event. To use Resource Graph, you must have appropriate rights in Azure role-based access control (Azure RBAC) with at least read access to the resources you want to query. No results are returned if you don't have at least read permissions to the Azure object or object group. |
 
-To use Resource Graph, you must have appropriate rights in Azure role-based access control (Azure RBAC) with at least read access to the resources you want to query. No results are returned if you don't have at least read permissions to the Azure object or object group.
 
+### Notes
 According to the [documentation](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/send-email-smtp/smtp-authentication#using-a-microsoft-entra-application-with-access-to-the-azure-communication-services-resource-for-smtp) you need to assign the Function app identity the following permissions on the Azure Communication Service Resource to be able to send emails:
 - Microsoft.Communication/CommunicationServices/Read
 - Microsoft.Communication/CommunicationServices/Write
