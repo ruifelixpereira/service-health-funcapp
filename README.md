@@ -18,13 +18,16 @@ The solution is based on Azure Functions and Azure Storage. The Azure Function i
 1. Azure Service Health announces "events" affecting specific service types and regions and stores this information on Resource Graph.
 2. Alongside service health events information, Resource Graph also stores metadata of each Azure resource, including tags.
 3. The Azure Function getHealthEvents queries [Resource Graph](https://learn.microsoft.com/en-us/azure/service-health/resource-graph-samples?tabs=azure-cli#azure-service-health) to collect information regarding service health events and impacted resources. For each resource, tags are used to identify the application and the owner (e.g., "App" and "Owner" tags) to be notified. Each notification is sent to a dispatch Storage Queue. Additionally, a consolidated report with all the relevant events is also generated to blob storage. This entire process is triggered by a daily timer.
-4. The sendNotifications function collects each notification event and sends it to the proper destinations (e-mail, ITSM, DevOps or Others). Each notification sent is stored in the Health notifications history blob storage.
-5. Email notifications are sent by the Azure Communication Email service to the Application owners.
-6. Other notifications can be sent by calling the APIS of external systems like ITSM, DevOps or others. This needs to be customized on a case-by-case basis.
-7. The sendReport function collects the consolidated report blob and sends it by email to the operations team. Each report is stored in the Health reports history blob storage.
-8. Email reports are sent by the Azure Communication Email service to the Operations team.
-9. Both the sendNotifications and the sendReports functions implement an error recovery logic in case they are not able to send emails. Failed e-mails are stored in queues to be processed later.
-10. Email messages are picked by the retryEmail function that tries to send them again.
+4. The dispatchNotifications function collects each notification event and dispatches to the proper senders specific queue (e-mail, ITSM, DevOps or Others). Each notification sent is stored in the Health notifications history blob storage.
+5. The sendNotificationsEmail function collects notification events and sends it to the proper e-mail recipients.
+6. Email notifications are sent by the Azure Communication Email service to the Application owners.
+7. Email notifications sender implementa an error recovery logic in case they are not able to send emails. Failed e-mails are stored in queues to be processed later.
+8. Email messages are picked by the retryEmail function that tries to send them again.
+9. Notifications can be sent by calling the APIS of external ITSM systems (e.g., ServiceNow). This needs to be implemented and customized on a case-by-case basis.
+10. Notifications can be sent by calling the APIS of external DevOps systems (e.g., Azure DevOps Boards, GitHub Issues, Jira, etc.). This needs to be implemented and customized on a case-by-case basis.
+11. Notifications can be sent by calling the APIS of other external (e.g., using Webhooks). This needs to be implemented and customized on a case-by-case basis.
+12. The sendReport function collects the consolidated report blob and sends it by email to the operations team. Each report is stored in the Health reports history blob storage.
+13. Email reports are sent by the Azure Communication Email service to the Operations team.
 
 
 ## Step 1. Setup Azure resources
