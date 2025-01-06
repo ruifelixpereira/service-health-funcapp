@@ -23,7 +23,7 @@ export async function getActiveHealthAdvisoryEvents(credential: DefaultAzureCred
     const result = await clientGraph.resources(
         {
             query: `ServiceHealthResources
-            | where type =~ 'Microsoft.ResourceHealth/events'
+            | where type =~ 'Microsoft.ResourceHealth/events2'
             | extend eventType = properties.EventType, eventSubType = properties.EventSubType, status = properties.Status, description = properties.Title, trackingId = properties.TrackingId, summary = properties.Summary, priority = properties.Priority, impactStartTime = todatetime(tolong(properties.ImpactStartTime)), impactMitigationTime = todatetime(tolong(properties.ImpactMitigationTime)), lastUpdateTime = todatetime(tolong(properties.LastUpdateTime)), platformInitiated = properties.PlatformInitiated
             | where eventType in ('HealthAdvisory', 'PlannedMaintenance') and impactMitigationTime > now()
             | summarize max(lastUpdateTime) by tostring(trackingId), tostring(eventType), tostring(eventSubType), tostring(description), tostring(summary), tostring(status), impactStartTime, impactMitigationTime, tostring(platformInitiated)`
