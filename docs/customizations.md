@@ -2,10 +2,12 @@
 
 ## Configure how to collect email notifications recipients addresses
 
-You can edit the file `src/controllers/customEmailRecipients.ts` and implement the function `getNotificationEmailRecipients`. This is the default implementation:
+### Email recipients for Application teams
+
+You can edit the file `src/controllers/customEmailRecipients.ts` and implement the function `getNotificationEmailAppRecipients`. This is the default implementation:
 
 ```typescript
-export async function getNotificationEmailRecipients(healthEvent: ServiceHealthImpact, additionalRecipients: string[]): Promise<string[]> {
+export async function getNotificationEmailAppRecipients(healthEvent: ServiceHealthImpact, additionalRecipients: string[]): Promise<string[]> {
 
     // TODO: To be customized according to the specific org context
     // Prepare list of recipients: e.g., get application owners e-mails from tags
@@ -14,6 +16,22 @@ export async function getNotificationEmailRecipients(healthEvent: ServiceHealthI
     return additionalRecipients;
 }
 ```
+
+### Email recipients for Operation teams
+
+You can edit the file `src/controllers/customEmailRecipients.ts` and implement the function `getNotificationEmailOperRecipients`. This is the default implementation:
+
+```typescript
+export async function getNotificationEmailOperRecipients(additionalRecipients: string[]): Promise<string[]> {
+
+    // TODO: To be customized according to the specific org context
+    // Prepare list of recipients: e.g., get operations e-mails
+    // For now let's just send to a test recipient that comes in the additionalRecipients parameter.
+    //const emailRecipients = [emailConfig.testOnlyRecipient];
+    return additionalRecipients;
+}
+```
+
 
 ## Configure notification senders
 
