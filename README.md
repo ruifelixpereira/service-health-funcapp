@@ -2,16 +2,11 @@
 
 ## Introduction
 
-Azure service issues, updates & retirements can occur. Service issues are anything that could affect your availability, from outages and planned maintenance to service transitions and retirements. While rare, they occur. [Azure Service Health](https://learn.microsoft.com/en-us/azure/service-health/overview) is a free Azure service that provides alerts and guidance regarding these occurrences on a timely fashion. In some organizations the challenge is to make these alerts reach out to the right people like the Application Owners. They should be aware of these occurrences to properly plan in advance how to deal with such situations.
-
-Given this context, let's define a Service Health Enhanced Notifications process to ensure that events like Planned maintenance & Service transitions and retirements are communicated in a timely fashion to the right persons
-
-This project aims to enhance notifications triggered by Azure Service Health alerts. Azure Service Health provides personalized alerts and guidance when Azure service issues affect you. It can notify you, help you understand the impact of issues, and keep you updated as the issue is resolved. Although Azure Service Health provides an Alerts feature, in some custom scenarios we need to enhance and further customize the integration with other systems.
-
+Azure service issues are anything that could affect your resources availability, from outages and planned maintenance to service transitions and retirements. While rare, the reality is that they occur. To increase the awareness and anticipate such service issues, Azure supplies a free service named [Azure Service Health](https://learn.microsoft.com/en-us/azure/service-health/overview) that provides alerts and guidance regarding these occurrences on a timely fashion. Azure Service Health provides personalized alerts and guidance when Azure service issues affect you. It can notify you, help you understand the impact of issues, and keep you updated as the issue is resolved. In some organizations the challenge is to make these alerts reach out to the right people, like the Application Owners, that need to be aware of these occurrences to properly plan in advance and avoid disruptions. Althought, Azure Service Health allows to configure alerts and provides certain integration capabilities with [webhooks](https://learn.microsoft.com/en-us/azure/service-health/service-health-alert-webhook-guide), in some custom scenarios we need to enhance and further customize the integration with other systems. This project aims to enhance the notifications triggered by Azure Service Health alerts.
 
 ## Solution overview
 
-The solution is based on Azure Functions and Azure Storage. The Azure Function is triggered by a Timer and checks new Service Health events on Resource Graph. When a new event is found, the function sends a notification to a storage queue. A second Azure Function is used to send notifications to the Application Owners. The notification can be sent by email, or by calling the APIS of externals systems like ITSM, DevOps or others.
+The solution is based on Azure Functions and Azure Storage. The Azure Function is triggered by a Timer and checks new Service Health events on Resource Graph. When a new event is found, the function sends a notification to a storage queue. A second Azure Function is used to dispatch and send notifications to the Application Owners by email, or by calling the APIs of externals systems like ITSM (e.g., ServiceNow), DevOps (e.g., GitHub Issues, Azure DevOps Boards, Jira) or others (e.g., Backstage notifications system).
 
 ![alt text](docs/images/arch.png)
 
@@ -21,11 +16,11 @@ The solution is based on Azure Functions and Azure Storage. The Azure Function i
 4. The dispatchNotifications function collects each notification event and dispatches to the proper senders specific queue (e-mail, ITSM, DevOps or Others). Each notification sent is stored in the Health notifications history blob storage.
 5. The sendNotificationsEmail function collects notification events and sends it to the proper e-mail recipients.
 6. Email notifications are sent by the Azure Communication Email service to the Application owners.
-7. Email notifications sender implementa an error recovery logic in case they are not able to send emails. Failed e-mails are stored in queues to be processed later.
+7. Email notifications sender implements an error recovery logic in case they are not able to send emails. Failed e-mails are stored in queues to be processed later.
 8. Email messages are picked by the retryEmail function that tries to send them again.
 9. Notifications can be sent by calling the APIS of external ITSM systems (e.g., ServiceNow). This needs to be implemented and customized on a case-by-case basis.
 10. Notifications can be sent by calling the APIS of external DevOps systems (e.g., Azure DevOps Boards, GitHub Issues, Jira, etc.). This needs to be implemented and customized on a case-by-case basis.
-11. Notifications can be sent by calling the APIS of other external (e.g., using Webhooks). This needs to be implemented and customized on a case-by-case basis.
+11. Notifications can be sent by calling the APIS of other external systems (e.g., Backstage notifications system or using Webhooks). This needs to be implemented and customized on a case-by-case basis.
 12. The sendReport function collects the consolidated report blob and sends it by email to the operations team. Each report is stored in the Health reports history blob storage.
 13. Email reports are sent by the Azure Communication Email service to the Operations team.
 

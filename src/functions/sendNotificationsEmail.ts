@@ -40,7 +40,7 @@ export async function sendNotificationsEmail(queueItem: ServiceHealthImpact, con
             mailNotification = {
                 senderAddress: emailConfig.senderAddress,
                 recipients: emailRecipients,
-                subject: queueItem.issue.summary,
+                subject: queueItem.issue.description,
                 notification: notification
             }
             await sendMail(emailConfig.endpoint, mailNotification);
