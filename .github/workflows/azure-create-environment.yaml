@@ -1,0 +1,41 @@
+name: Deploy Bicep file
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'Prefix for resource names'
+        required: true
+        default: 'shth3'
+        type: string
+      emailTestOnlyRecipient:
+        description: 'Email address for test emails'
+        required: true
+        default: 'test@contoso.com'
+        type: string
+      createCommunicationServices:
+        description: 'Create Email Communication Services resources'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@main
+
+    - name: Log into Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_ENVIRONMENT_RBAC_CREDENTIALS }}
+
+    - name: Deploy Bicep file
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        template: scripts/azure/azure-flex-env.bicep
+        parameters: 'prefix=${{ inputs.prefix }} emailTestOnlyRecipient=${{ inputs.emailTestOnlyRecipient }} createCommunicationServices=${{ inputs.createCommunicationServices }}'
+        failOnStdErr: false

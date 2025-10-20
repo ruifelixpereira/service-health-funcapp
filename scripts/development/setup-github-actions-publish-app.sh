@@ -9,7 +9,7 @@ set -a && source .env && set +a
 required_vars=(
     "resourceGroupName"
     "funcAppName"
-    "githubDeploymentAppName"
+    "githubPublisherAppName"
 )
 
 # Set the current directory to where the script lives.
@@ -54,13 +54,13 @@ SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 # Create Service principal to be used by GitHub Actions in deployments
 #
 az ad sp create-for-rbac \
-    --name ${githubDeploymentAppName} \
+    --name ${githubPublisherAppName} \
     --role "Website Contributor" \
     --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resourceGroupName}/providers/Microsoft.Web/sites/${funcAppName} \
     --json-auth
 
 
 # Output
-echo "============================================================================="
-echo "Add the above JSON into a GitHub Actions secret named AZURE_RBAC_CREDENTIALS."
-echo "============================================================================="
+echo "====================================================================================="
+echo "Add the above JSON into a GitHub Actions secret named AZURE_PUBLISH_RBAC_CREDENTIALS."
+echo "====================================================================================="
