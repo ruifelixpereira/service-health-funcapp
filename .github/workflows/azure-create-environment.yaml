@@ -33,10 +33,13 @@ jobs:
         creds: ${{ secrets.AZURE_ENVIRONMENT_RBAC_CREDENTIALS }}
 
     - name: Deploy Bicep file
-      uses: azure/arm-deploy@v1
+      uses: azure/bicep-deploy@v2
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        template: scripts/azure/azure-flex-env.bicep
-        parameters: 'prefix=${{ inputs.prefix }} emailTestOnlyRecipient=${{ inputs.emailTestOnlyRecipient }} createCommunicationServices=${{ inputs.createCommunicationServices }}'
+        type: deployment
+        operation: create
+        scope: resourceGroup
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        template-file: scripts/azure/azure-flex-env.bicep
+        parameters: '{"prefix":"${{ inputs.prefix }}","emailTestOnlyRecipient":"${{ inputs.emailTestOnlyRecipient }}","createCommunicationServices":${{ inputs.createCommunicationServices }}}'
         failOnStdErr: false
