@@ -7,11 +7,11 @@ Configure your local environment and install Azure Function Core tools following
 
 ## Setup Azure resources
 
-To create Azure resources, you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
-After this customization, just run the provided file in the `scripts` directory:
+To create Azure resources, you can use the provided `scripts/azure/create-azure-environment.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
+After this customization, just run the provided file in the `scripts/azure` directory:
 
 ```bash
-./create-azure-env.sh
+./create-azure-environment.sh
 ```
 
 In the end you should have the following resources created:

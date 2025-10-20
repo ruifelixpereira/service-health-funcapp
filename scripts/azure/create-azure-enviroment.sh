@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# The user/sp running this script needs to have at least the role of "Key Vault Secrets Officer" in the Key Vault
-
 # load environment variables
 set -a && source .env && set +a
 
 # Required variables
 required_vars=(
+    "prefix"
     "resourceGroupName"
-    "funcAppName"
-    "githubDeploymentAppName"
+    "location"
+    "emailTestOnlyRecipient"
+    "createCommunicationServices"
 )
 
 # Set the current directory to where the script lives.
@@ -47,15 +47,26 @@ check_required_arguments
 
 ####################################################################################
 
-# Get Subscription Id
-SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+#
+# Create/Get a resource group.
+#
+rg_query=$(az group list --query "[?name=='$resourceGroupName']")
+if [ "$rg_query" == "[]" ]; then
+   echo -e "\nCreating Resource group '$resourceGroupName'"
+   az group create --name ${resourceGroupName} --location ${location}
+else
+   echo "Resource group $resourceGroupName already exists."
+fi
 
 #
-# Create Service principal to be used by GitHub Actions in deployments
+# Deploy complete environment using Bicep
 #
-az ad sp create-for-rbac \
-    --name ${githubDeploymentAppName} \
-    --role contributor \
-    --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resourceGroupName}/providers/Microsoft.Web/sites/${funcAppName} \
-    --sdk-auth
+DEPLOYMENT_OUTPUT=$(az deployment group create \
+  --resource-group $resourceGroupName \
+  --template-file azure-flex-env.bicep \
+  --parameters prefix="$prefix" emailTestOnlyRecipient="$emailTestOnlyRecipient" createCommunicationServices="$createCommunicationServices" \
+  --query "properties.outputs" \
+  --output json)
+
+echo -e "\nDeployment output:\n$DEPLOYMENT_OUTPUT\n"
 

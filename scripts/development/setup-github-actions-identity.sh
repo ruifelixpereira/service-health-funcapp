@@ -8,10 +8,8 @@ set -a && source .env && set +a
 # Required variables
 required_vars=(
     "resourceGroupName"
-    "commServiceName"
-    "emailServiceName"
-    "keyVaultName"
-    "emailTestOnlyRecipient"
+    "funcAppName"
+    "githubDeploymentAppName"
 )
 
 # Set the current directory to where the script lives.
@@ -49,15 +47,20 @@ check_required_arguments
 
 ####################################################################################
 
-# Load keys and values
+# Get Subscription Id
+SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-# The endpoint of you Communications service.
-EMAIL_ENDPOINT=$(az communication show --name $commServiceName --resource-group $resourceGroupName --query "hostName" -o tsv)
-az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-endpoint --value "https://${EMAIL_ENDPOINT}"
+#
+# Create Service principal to be used by GitHub Actions in deployments
+#
+az ad sp create-for-rbac \
+    --name ${githubDeploymentAppName} \
+    --role "Website Contributor" \
+    --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resourceGroupName}/providers/Microsoft.Web/sites/${funcAppName} \
+    --json-auth
 
-# The email address of the sender for all emails.
-FROM_SENDER_DOMAIN=$(az communication email domain show --resource-group $resourceGroupName --email-service-name $emailServiceName --name AzureManagedDomain --query "fromSenderDomain" -o tsv)
-az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-sender-address --value "donotreply@${FROM_SENDER_DOMAIN}"
 
-# The email address for testing.
-az keyvault secret set --vault-name $keyVaultName --name servicehealth-email-test-only-recipient --value ${emailTestOnlyRecipient}
+# Output
+echo "============================================================================="
+echo "Add the above JSON into a GitHub Actions secret named AZURE_RBAC_CREDENTIALS."
+echo "============================================================================="

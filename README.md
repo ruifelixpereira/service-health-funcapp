@@ -27,11 +27,11 @@ The solution is based on Azure Functions and Azure Storage. The Azure Function i
 
 ## Step 1. Setup Azure resources
 
-To create Azure resources, you can use the provided `scripts/create-azure-env.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
-After this customization, just run the provided file in the `scripts` directory:
+To create Azure resources, you can use the provided `scripts/azure/create-azure-environment.sh` file. Copy `template.env` to a new file named `.env` and customize the settings according to your environment.
+After this customization, just run the provided file in the `scripts/azure` directory:
 
 ```bash
-./create-azure-env.sh
+./create-azure-environment.sh
 ```
 
 In the end you should have the following resources created:
@@ -45,7 +45,7 @@ Use the provided GitHub Action workflow file `.github/workflows/azure-deploy.yml
 
 ### 2.1. Create a Service principal to deploy Function app and configure Secrets in GitHub
 
-Run the provided script `scripts/prep-github-actions.sh` to create a Service Principal. The command should output a JSON object similar to this:
+Run the provided script `scripts/development/prep-github-actions.sh` to create a Service Principal. The command should output a JSON object similar to this:
 
 ```json
   {
@@ -74,7 +74,7 @@ You should see a new GitHub workflow initiated in Actions tab.
 
 ## Step 3. Assign roles and permissions to Function app
 
-Function app system assigned identity needs to have the following roles to be able to execute certain operations in other Azure resources. If you use the provided script `scripts\create-azure-env.sh` these roles are already assigned:
+Function app system assigned identity needs to have the following roles to be able to execute certain operations in other Azure resources. If you use the provided script `scripts/azure/create-azure-environment.sh` these roles are already assigned:
 
 | Role                           | Azure resource               | Notes |
 | ------------------------------ | ---------------------------- | ----- |
@@ -91,7 +91,7 @@ According to the [documentation](https://learn.microsoft.com/en-us/azure/communi
 - Microsoft.Communication/CommunicationServices/Write
 - Microsoft.Communication/EmailServices/write
 
-You can create a custom role with these permissions and assign it to the Function app identity or you can just assign the Contributor role to the Function app identity. If you prefer to create a custom role you can use the provided script `scripts/create-custom-role.sh`. Before running this script, edit the json file `scripts/custom-email-send-role.json` and change the subscription scope.
+If you don't want to assign the Contributor role, you can create a custom role with these permissions only. You can use the provided `custom-role.bicep` file to create this custom role at subscription level. You can deploy it using Azure CLI:
 
 
 ## Step 4. Configure Key Vault settings
