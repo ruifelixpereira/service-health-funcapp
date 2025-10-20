@@ -133,4 +133,8 @@ npm -v
 ![alt text](image-3.png)
 
 
+publish
+
+![alt text](image-4.png)
+
 
