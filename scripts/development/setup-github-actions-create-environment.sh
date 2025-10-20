@@ -54,7 +54,7 @@ SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 #
 az ad sp create-for-rbac \
     --name ${githubEnvironmentAppName} \
-    --role "Contributor" \
+    --role "Owner" \
     --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resourceGroupName} \
     --json-auth
 

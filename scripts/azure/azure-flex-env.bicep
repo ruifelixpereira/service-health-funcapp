@@ -289,10 +289,6 @@ resource emailEndpointSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = if
   properties: {
     value: 'https://${communicationService.?properties.hostName}'
   }
-
-  dependsOn: [
-    communicationService
-  ]
 }
 
 resource emailSenderAddressSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = if (createCommunicationServices) {
@@ -301,10 +297,6 @@ resource emailSenderAddressSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01'
   properties: {
     value: 'donotreply@${emailDomain.?properties.fromSenderDomain}'
   }
-
-  dependsOn: [
-    emailDomain
-  ]
 }
 
 resource emailTestOnlyRecipientSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
