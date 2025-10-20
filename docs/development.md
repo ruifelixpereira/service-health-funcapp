@@ -124,3 +124,9 @@ nvm alias default v20.19.2
 node -v
 npm -v
 ```
+
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
