@@ -287,7 +287,7 @@ resource emailEndpointSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = if
   name: 'servicehealth-email-endpoint'
   parent: keyVault
   properties: {
-    value: 'https://${communicationService.properties.hostName}'
+    value: 'https://${communicationService.?properties.hostName}'
   }
 }
 
@@ -295,7 +295,7 @@ resource emailSenderAddressSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01'
   name: 'servicehealth-email-sender-address'
   parent: keyVault
   properties: {
-    value: 'donotreply@${emailDomain.properties.fromSenderDomain}'
+    value: 'donotreply@${emailDomain.?properties.fromSenderDomain}'
   }
 }
 
