@@ -42,4 +42,3 @@ jobs:
         resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
         template-file: scripts/azure/azure-flex-env.bicep
         parameters: '{"prefix":"${{ inputs.prefix }}","emailTestOnlyRecipient":"${{ inputs.emailTestOnlyRecipient }}","createCommunicationServices":${{ inputs.createCommunicationServices }}}'
-        failOnStdErr: false
