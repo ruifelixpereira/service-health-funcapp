@@ -6,19 +6,20 @@ on:
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
 #
-# 1. Set up the following secrets in your repository:
-#   AZURE_FUNCTIONAPP_PUBLISH_PROFILE
+# 1. Set up the following secrets in your GitHub environment:
+#   AZURE_PUBLISH_RBAC_CREDENTIALS - Service principal credentials for your Azure account in JSON format.
 #
-# 2. Change these variables for your configuration:
+# 2. Set up environment variables in your GitHub environment:
+#   AZURE_FUNCTIONAPP_NAME - Your function app name on Azure
+#
 env:
-  #AZURE_FUNCTIONAPP_NAME: 'fa-servicehealth001'      # set this to your function app name on Azure
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'                # set this to the path to your function app project, defaults to the repository root
   NODE_VERSION: '20.x'                               # set this to the node version to use (e.g. '8.x', '10.x', '12.x')
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: dev  # This ensures the job has access to the dev environment variables
     steps:
     - name: 'Checkout GitHub Action'
       uses: actions/checkout@v3
@@ -46,6 +47,6 @@ jobs:
       uses: Azure/functions-action@v1
       id: fa
       with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         #publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
