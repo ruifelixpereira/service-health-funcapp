@@ -49,7 +49,7 @@ Run the provided script `scripts/development/setup-github-actions-publish-app.sh
     (...)
   }
 ```
-Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > dev environment > Add a new secret > `AZURE_PUBLISH_RBAC_CREDENTIALS`.
+Copy and paste the json response from above Azure CLI to your GitHub Repository > Settings > Environments > dev environment > Add environment secret > `AZURE_PUBLISH_RBAC_CREDENTIALS`.
 
 Additionally, add a new variable `AZURE_FUNCTIONAPP_NAME` to the GitHub Action environment that specifies the name of your Function App. This variable will be used in the GitHub Action workflow file to deploy your Function App.
 
